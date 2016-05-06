@@ -1,0 +1,92 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'commander/import'
+require 'json'
+require 'uri'
+
+program :name, 'Zappifest'
+program :version, '0.0.1'
+program :description, 'Tool to generate Zapp plugin manifest'
+
+command :init do |c|
+  c.syntax = 'zappifest init [options]'
+  c.summary = ''
+  c.description = ''
+  c.example 'description', 'command example'
+  c.option '--some-switch', 'Some switch that does something'
+  c.action do |args, options|
+
+    color(
+      "      '########::::'###::::'########::'########::'####:'########:'########::'######::'########:
+      ..... ##::::'## ##::: ##.... ##: ##.... ##:. ##:: ##.....:: ##.....::'##... ##:... ##..::
+      :::: ##::::'##:. ##:: ##:::: ##: ##:::: ##:: ##:: ##::::::: ##::::::: ##:::..::::: ##::::
+      ::: ##::::'##:::. ##: ########:: ########::: ##:: ######::: ######:::. ######::::: ##::::
+      :: ##::::: #########: ##.....::: ##.....:::: ##:: ##...:::: ##...:::::..... ##:::: ##::::
+      : ##:::::: ##.... ##: ##:::::::: ##::::::::: ##:: ##::::::: ##:::::::'##::: ##:::: ##::::
+       ########: ##:::: ##: ##:::::::: ##::::::::'####: ##::::::: ########:. ######::::: ##::::
+      ........::..:::::..::..:::::::::..:::::::::....::..::::::::........:::......::::::..:::::\n",
+      :blue,
+    )
+
+    color "This utility will walk you through creating a manifest.json file.", :green
+    color "It only covers the most common items, and tries to guess sensible defaults.\n", :green
+
+    manifest_hash = {}
+
+    manifest_hash[:manifest_version] = ask("Manifest version: ") { |q| q.default = "0.1.0" }
+
+    manifest_hash[:name] =
+      ask("Plugin Name: ") do |q|
+        q.validate = /^(?!\s*$).+/
+        q.responses[:not_valid] = "Name cannot be blank."
+      end
+
+    manifest_hash[:description] = ask "Plugin description (optional): "
+    manifest_hash[:type] = choose("Type: \n", :player, :menu)
+    manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
+
+    manifest_hash[:dependency_repository_url] =
+      ask("Repository url(optional, will use default ones if blank): ") do |q|
+        q.validate = /^$|#{URI::regexp(%w(http https))}/
+        q.responses[:not_valid] = "Please type a valid URL."
+      end
+
+    manifest_hash[:dependency_name] = ask "Package name: "
+    manifest_hash[:dependency_version] = ask "Package version: "
+
+    manifest_hash[:class_name] = ask "Class Name: "
+
+    say "Custom configuration fields: \n"
+    manifest_hash[:custom_configuration_fields] = []
+
+    add_custom_fields = agree "Wanna add custom fields? "
+
+    if add_custom_fields
+      custom_fields_count = ask("How many? ", Integer) { |q| q.in = 1..10 }
+
+      custom_fields_count.times do |index|
+        field_hash = {}
+        color "Custom field #{index + 1}", :yellow
+        color "---------------------", :yellow
+
+        field_hash[:section] =
+          ask ("Under which section this custom field will appear? (Optional)") do |q|
+            q.default = "general"
+          end
+
+        field_hash[:type] = choose("What is the field Type: \n", :text, :checkbox, :textarea)
+        field_hash[:key] = ask "What is the key for this field?"
+        manifest_hash[:custom_configuration_fields].push(field_hash)
+        color "Custom field #{index + 1} added!", :green
+      end
+    end
+
+    File.open("zapp_manifest.json", "w") do |file|
+      file.write(JSON.pretty_generate(manifest_hash))
+    end
+
+    color "zapp_manifest.json file created!", :green
+  end
+end
+
