@@ -25,6 +25,14 @@ brew upgrade zappifest
 ```
 
 ## Usage
-Zappifest allows fast configuration for Zapp plugin manifest.json file.  
-Just run `zappifest init`   
+### Init
+Zappifest allows fast configuration for Zapp plugin-manifest.json file.  
+Just run `zappifest init` and follow the instructions.
+
+### Publish
+The tool allow you to publish the plugin to Zapp.
+`run zappifest publish --manifest <path_to_manifest-json-file> --access-token <zapp-access-token>`
+
+
+
 

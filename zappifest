@@ -4,17 +4,18 @@ require 'rubygems'
 require 'commander/import'
 require 'json'
 require 'uri'
+require 'net/http'
+require_relative 'multipart'
+require_relative 'network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.0.1'
+program :version, '0.2.1'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
   c.syntax = 'zappifest init [options]'
-  c.summary = ''
-  c.description = ''
-  c.example 'description', 'command example'
-  c.option '--some-switch', 'Some switch that does something'
+  c.summary = 'Initialize plugin-manifest.json'
+  c.description = 'Initialize plugin-manifest.json'
   c.action do |args, options|
 
     color(
@@ -34,13 +35,22 @@ command :init do |c|
 
     manifest_hash = {}
 
+    manifest_hash[:author_name] = ask("Author Name: ") do |q|
+      q.validate = /^(?!\s*$).+/
+      q.responses[:not_valid] = "Author cannot be blank."
+    end
+
+    manifest_hash[:author_email] = ask("Author Email: ") do |q|
+      q.validate = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+      q.responses[:not_valid] = "Should be a valid email."
+    end
+
     manifest_hash[:manifest_version] = ask("Manifest version: ") { |q| q.default = "0.1.0" }
 
-    manifest_hash[:name] =
-      ask("Plugin Name: ") do |q|
-        q.validate = /^(?!\s*$).+/
-        q.responses[:not_valid] = "Name cannot be blank."
-      end
+    manifest_hash[:name] = ask("Plugin Name: ") do |q|
+      q.validate = /^(?!\s*$).+/
+      q.responses[:not_valid] = "Name cannot be blank."
+    end
 
     manifest_hash[:description] = ask "Plugin description (optional): "
     manifest_hash[:type] = choose("Type: \n", :player, :menu)
@@ -49,13 +59,23 @@ command :init do |c|
     manifest_hash[:dependency_repository_url] =
       ask("Repository url(optional, will use default ones if blank): ") do |q|
         q.validate = /^$|#{URI::regexp(%w(http https))}/
-        q.responses[:not_valid] = "Please type a valid URL."
+          q.responses[:not_valid] = "Please type a valid URL."
       end
 
-    manifest_hash[:dependency_name] = ask "Package name: "
-    manifest_hash[:dependency_version] = ask "Package version: "
+    manifest_hash[:dependency_name] = ask("Package name: ") do |q|
+      q.validate = /^(?!\s*$).+/
+      q.responses[:not_valid] = "Package name cannot be blank."
+    end
 
-    manifest_hash[:class_name] = ask "Class Name: "
+    manifest_hash[:dependency_version] = ask("Package version: ") do |q|
+      q.validate = /^(?!\s*$).+/
+      q.responses[:not_valid] = "Package version cannot be blank."
+    end
+
+    manifest_hash[:class_name] = ask("Class Name: ") do |q|
+      q.validate = /^(?!\s*$).+/
+      q.responses[:not_valid] = "Class name cannot be blank."
+    end
 
     say "Custom configuration fields: \n"
     manifest_hash[:custom_configuration_fields] = []
@@ -82,11 +102,41 @@ command :init do |c|
       end
     end
 
-    File.open("zapp_manifest.json", "w") do |file|
+    File.open("plugin-manifest.json", "w") do |file|
       file.write(JSON.pretty_generate(manifest_hash))
     end
 
-    color "zapp_manifest.json file created!", :green
+    color "plugin-manifest.json file created!", :green
+  end
+end
+
+command :publish do |c|
+  c.syntax = 'zappifest publish [options]'
+  c.summary = 'Publish plugin to Zapp'
+  c.description = 'Publish zapp plugin-manifest.json to Zapp'
+  c.option '--manifest PATH', String, 'plugin-manifest.json path'
+  c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
+  c.option '--override-url URL', String, 'alternate url'
+  c.action do |args, options|
+    url = URI.parse(options.override_url || NetworkHelpers::ZAPP_URL)
+    params = NetworkHelpers.set_request_params(options)
+    mp = Multipart::MultipartPost.new
+    query, headers = mp.prepare_query(params)
+
+    begin
+      response = NetworkHelpers.post_request(url, query, headers)
+    rescue => error
+      color "Request failed: #{error}", :red
+    end
+
+    case response
+    when Net::HTTPSuccess
+      color "Plugin created!", :green
+    when Net::HTTPInternalServerError
+      color "Request failed: HTTPInternalServerError", :red
+    else
+      color "Unknown error: #{response}", :red
+    end
   end
 end
 
