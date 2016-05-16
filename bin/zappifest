@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.2.1'
+program :version, '0.2.2'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -56,11 +56,11 @@ command :init do |c|
     manifest_hash[:type] = choose("Type: \n", :player, :menu)
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
 
-    manifest_hash[:dependency_repository_url] =
-      ask("Repository url(optional, will use default ones if blank): ") do |q|
-        q.validate = /^$|#{URI::regexp(%w(http https))}/
-          q.responses[:not_valid] = "Please type a valid URL."
-      end
+    manifest_hash[:dependency_repository_url] = ask(
+      "Repository urls (optional, will use default ones if blank. " +
+      "URLs must be valid, otherwise will not be saved. " +
+      "Press 'return' key between values, and 'return key' to finish):",
+      -> (repo) { repo =~ /^$|#{URI::regexp(%w(http https))}/ ? repo : nil } ) { |q| q.gather = "" }
 
     manifest_hash[:dependency_name] = ask("Package name: ") do |q|
       q.validate = /^(?!\s*$).+/

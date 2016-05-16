@@ -3,48 +3,53 @@ module Multipart
   require 'mime/types'
   require 'net/http'
   require 'cgi'
+  require 'pry'
 
   class Param
-    attr_accessor :k, :v
-    def initialize(k, v)
-      @k = k
-      @v = v
+    attr_accessor :key, :value
+    def initialize(key, value)
+      @key = key
+      @value = value
     end
 
     def to_multipart
-      return "Content-Disposition: form-data; name=\"#{k}\"\r\n\r\n#{v}\r\n"
+      "Content-Disposition: form-data; name=\"#{key}\"\r\n\r\n#{value}\r\n"
     end
   end
 
   class FileParam
-    attr_accessor :k, :filename, :content
-    def initialize( k, filename, content )
-      @k = k
+    attr_accessor :key, :filename, :content
+    def initialize(key, filename, content)
+      @key = key
       @filename = filename
       @content = content
     end
 
     def to_multipart
-      return "Content-Disposition: form-data; name=\"#{k}\"; filename=\"#{filename}\"\r\n" +
-        "Content-Transfer-Encoding: binary\r\n" +
-        "Content-Type: #{MIME::Types.type_for(@filename)}\r\n\r\n" + content + "\r\n"
+      binding.pry
+      "Content-Disposition: form-data; name=\"#{key}\"; filename=\"#{filename}\"\r\n" +
+      "Content-Transfer-Encoding: binary\r\n" +
+      "Content-Type: #{MIME::Types.type_for(filename)}\r\n\r\n" + content + "\r\n"
     end
   end
 
   class MultipartPost
     BOUNDARY = 'tarsiers-rule0000'
-    HEADER = {"Content-type" => "multipart/form-data, boundary=" + BOUNDARY + " "}
+    HEADER = { "Content-type" => "multipart/form-data, boundary=" + BOUNDARY + " " }
 
-    def prepare_query (params)
-      fp = []
-      params.each {|k,v|
-        if v.respond_to?(:read)
-          fp.push(FileParam.new(k, v.path, v.read))
+    def prepare_query(params)
+      normalized_params = params.each_with_object([]) do |(key, value), result|
+        if value.respond_to?(:read)
+          result.push(FileParam.new(key, value.path, value.read))
         else
-          fp.push(Param.new(k,v))
+          result.push(Param.new(key,value))
         end
-      }
-      query = fp.collect {|p| "--" + BOUNDARY + "\r\n" + p.to_multipart }.join("") + "--" + BOUNDARY + "--"
+      end
+
+      query = normalized_params.map do |p|
+        "--" + BOUNDARY + "\r\n" + p.to_multipart
+      end.join("") + "--" + BOUNDARY + "--"
+
       return query, HEADER
     end
   end
