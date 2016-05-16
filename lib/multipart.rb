@@ -3,7 +3,6 @@ module Multipart
   require 'mime/types'
   require 'net/http'
   require 'cgi'
-  require 'pry'
 
   class Param
     attr_accessor :key, :value
@@ -26,7 +25,6 @@ module Multipart
     end
 
     def to_multipart
-      binding.pry
       "Content-Disposition: form-data; name=\"#{key}\"; filename=\"#{filename}\"\r\n" +
       "Content-Transfer-Encoding: binary\r\n" +
       "Content-Type: #{MIME::Types.type_for(filename)}\r\n\r\n" + content + "\r\n"
