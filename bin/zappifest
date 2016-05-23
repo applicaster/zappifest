@@ -33,7 +33,7 @@ command :init do |c|
     color "This utility will walk you through creating a manifest.json file.", :green
     color "It only covers the most common items, and tries to guess sensible defaults.\n", :green
 
-    manifest_hash = {}
+    manifest_hash = { api: {} }
 
     manifest_hash[:author_name] = ask("Author Name: ") do |q|
       q.validate = /^(?!\s*$).+/
@@ -72,9 +72,16 @@ command :init do |c|
       q.responses[:not_valid] = "Package version cannot be blank."
     end
 
-    manifest_hash[:class_name] = ask("Class Name: ") do |q|
+    manifest_hash[:api][:class_name] = ask("Class Name: ") do |q|
       q.validate = /^(?!\s*$).+/
       q.responses[:not_valid] = "Class name cannot be blank."
+    end
+
+    if manifest_hash[:platform] == :android
+      add_proguard_rules = agree "Need to add custom Proguard rules? (will open a text editor)"
+      if add_proguard_rules
+        manifest_hash[:api][:proguard_rules] = ask_editor(nil, "vim")
+      end
     end
 
     say "Custom configuration fields: \n"
