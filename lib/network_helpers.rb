@@ -6,9 +6,20 @@ module NetworkHelpers
   module_function
 
   def post_request(url, query, headers)
-    Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == "https") do |connection|
+    uri = URI.parse(url)
+
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
       connection.read_timeout = 10
-      return connection.post(url.path, query, headers)
+      return connection.post(uri.path, query, headers)
+    end
+  end
+
+  def put_request(url, query, headers)
+    uri = URI.parse(url)
+
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
+      connection.read_timeout = 10
+      return connection.put(uri.path, query, headers)
     end
   end
 
