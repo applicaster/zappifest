@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.4.1'
+program :version, '0.5.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -121,17 +121,22 @@ command :publish do |c|
   c.syntax = 'zappifest publish [options]'
   c.summary = 'Publish plugin to Zapp'
   c.description = 'Publish zapp plugin-manifest.json to Zapp'
+  c.option '--plugin-id PLUGIN_ID', String, 'Zapp plugin id, if updating an existing plugin'
   c.option '--manifest PATH', String, 'plugin-manifest.json path'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.option '--override-url URL', String, 'alternate url'
   c.action do |args, options|
-    url = URI.parse(options.override_url || NetworkHelpers::ZAPP_URL)
+    url = options.override_url || NetworkHelpers::ZAPP_URL
     params = NetworkHelpers.set_request_params(options)
     mp = Multipart::MultipartPost.new
     query, headers = mp.prepare_query(params)
 
     begin
-      response = NetworkHelpers.post_request(url, query, headers)
+      if options.plugin_id
+        response = NetworkHelpers.put_request("#{url}/#{options.plugin_id}", query, headers)
+      else
+        response = NetworkHelpers.post_request(url, query, headers)
+      end
     rescue => error
       color "Request failed: #{error}", :red
     end
