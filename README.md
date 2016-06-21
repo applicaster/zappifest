@@ -31,7 +31,13 @@ Just run `zappifest init` and follow the instructions.
 
 ### Publish
 The tool allow you to publish the plugin to Zapp.
-`run zappifest publish --manifest <path_to_manifest-json-file> --access-token <zapp-access-token>`
+
+Run `zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token>`
+
+#### Updating existing plugin
+Check the plugin id on [Zapp](https://zapp.applicaster.com/admin/plugins) and add it to the command as follows:
+
+Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json-file> --access-token <zapp-access-token>`
 
 
 
