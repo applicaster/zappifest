@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.5.0'
+program :version, '0.5.1'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -53,7 +53,7 @@ command :init do |c|
     end
 
     manifest_hash[:description] = ask "Plugin description (optional): "
-    manifest_hash[:type] = choose("Type: \n", :player, :menu)
+    manifest_hash[:type] = choose("Type: \n", :player, :menu, :analytics, :payments)
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
 
     manifest_hash[:dependency_repository_url] = ask(
