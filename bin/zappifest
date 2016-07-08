@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.5.1'
+program :version, '0.6.1'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -53,7 +53,7 @@ command :init do |c|
     end
 
     manifest_hash[:description] = ask "Plugin description (optional): "
-    manifest_hash[:type] = choose("Type: \n", :player, :menu, :analytics, :payments)
+    manifest_hash[:type] = choose("Type: \n", :player, :menu, :analytics, :payments, :auth_provider)
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
 
     manifest_hash[:dependency_repository_url] = ask(
@@ -97,12 +97,22 @@ command :init do |c|
         color "Custom field #{index + 1}", :yellow
         color "---------------------", :yellow
 
-        field_hash[:type] = choose("What is the field Type: \n", :text, :checkbox, :textarea)
+        field_hash[:type] = choose(
+          "Choose field type: \n",
+          :text, :checkbox, :textarea, :dropdown,
+        )
 
         field_hash[:key] = ask "What is the key for this field?" do |q|
           q.validate = /^(?!\s*$).+/
           q.responses[:not_valid] = "Custom Key cannot be blank."
         end
+
+        if field_hash[:type] == :dropdown
+            field_hash[:options] = ask "Enter dropdown options (or blank line to quit)" do |q|
+              q.gather = ""
+            end
+        end
+
 
         manifest_hash[:custom_configuration_fields].push(field_hash)
         color "Custom field #{index + 1} added!", :green
