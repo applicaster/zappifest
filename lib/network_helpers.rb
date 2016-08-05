@@ -32,6 +32,7 @@ module NetworkHelpers
       params["plugin[manifest]"] = manifest_file
       params["plugin[name]"] = "#{manifest_data['name']} - #{manifest_data['platform']}"
       params["plugin[author_email]"] = manifest_data["author_email"]
+      params["plugin[category]"] = manifest_data["type"]
     end
   end
 end
