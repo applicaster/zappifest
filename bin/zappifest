@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.8.0'
+program :version, '0.9.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -55,9 +55,9 @@ command :init do |c|
     manifest_hash[:description] = ask "Plugin description (optional): "
     manifest_hash[:type] = choose("Type: \n", :player, :menu, :analytics, :payments, :auth_provider)
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
-    
+
     # temporary: supporting ios parsing - differentiate platforms
-    if manifest_hash[:platform] == :android 
+    if manifest_hash[:platform] == :android
       dependency_repositories_count = ask(
         "Number of additional dependency repositories that will be in use: ",
         Integer
@@ -84,15 +84,15 @@ command :init do |c|
       "Press 'return' key between values, and 'return key' to finish):",
       -> (repo) { repo =~ /^$|#{URI::regexp(%w(http https))}/ ? repo : nil } ) { |q| q.gather = "" }
     end
-    
+
     manifest_hash[:dependency_name] = ask("Package name: ") do |q|
-      q.validate = /^(?!\s*$).+/
-      q.responses[:not_valid] = "Package name cannot be blank."
+      q.validate = /^[\S]+$/
+      q.responses[:not_valid] = "Package name cannot be blank or contains whitespaces."
     end
 
     manifest_hash[:dependency_version] = ask("Package version: ") do |q|
-      q.validate = /^(?!\s*$).+/
-      q.responses[:not_valid] = "Package version cannot be blank."
+      q.validate = /^[\S]+$/
+      q.responses[:not_valid] = "Package version cannot be blank or contains whitespaces."
     end
 
     manifest_hash[:api][:class_name] = ask("Class Name: ") do |q|
@@ -126,8 +126,8 @@ command :init do |c|
         )
 
         field_hash[:key] = ask "What is the key for this field?" do |q|
-          q.validate = /^(?!\s*$).+/
-          q.responses[:not_valid] = "Custom Key cannot be blank."
+          q.validate = /^[\S]+$/
+          q.responses[:not_valid] = "Custom Key cannot be blank and contain whitespaces."
         end
 
         if field_hash[:type] == :dropdown
@@ -176,7 +176,7 @@ command :publish do |c|
 
     case response
     when Net::HTTPSuccess
-      color "Plugin created!", :green
+      color(options.plugin_id ? "Plugin updated!" : "Plugin created! ", :green)
     when Net::HTTPInternalServerError
       color "Request failed: HTTPInternalServerError", :red
     else
