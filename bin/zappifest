@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.9.0'
+program :version, '0.10.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -53,6 +53,12 @@ command :init do |c|
     end
 
     manifest_hash[:description] = ask "Plugin description (optional): "
+
+    manifest_hash[:identifier] = ask("Plugin identifier: ") do |q|
+      q.validate = /^(?!\s*$).+/
+      q.responses[:not_valid] = "Identifier cannot be blank."
+    end
+
     manifest_hash[:type] = choose("Type: \n", :player, :menu, :analytics, :payments, :auth_provider)
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
 
