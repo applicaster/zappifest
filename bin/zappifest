@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.10.0'
+program :version, '0.11.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -90,6 +90,8 @@ command :init do |c|
       "Press 'return' key between values, and 'return key' to finish):",
       -> (repo) { repo =~ /^$|#{URI::regexp(%w(http https))}/ ? repo : nil } ) { |q| q.gather = "" }
     end
+
+    manifest_hash[:min_zapp_sdk] = ask("Min Zapp SDK: (Leave blank if no restrictions) ")
 
     manifest_hash[:dependency_name] = ask("Package name: ") do |q|
       q.validate = /^[\S]+$/
