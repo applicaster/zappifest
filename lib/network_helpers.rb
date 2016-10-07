@@ -2,8 +2,21 @@ module NetworkHelpers
   require 'net/http'
 
   ZAPP_URL = "https://zapp.applicaster.com/api/v1/admin/plugins"
+  ACCOUNTS_URL = "https://accounts.applicaster.com/api/v1"
 
   module_function
+
+  def validate_accounts_token(options)
+    uri = URI.parse(ACCOUNTS_URL)
+
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
+      connection.read_timeout = 10
+
+      return connection.get(
+        "#{uri.path}/users/current.json?access_token=#{options.access_token}",
+      )
+    end
+  end
 
   def post_request(url, query, headers)
     uri = URI.parse(url)
