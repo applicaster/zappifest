@@ -165,6 +165,24 @@ command :publish do |c|
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.option '--override-url URL', String, 'alternate url'
   c.action do |args, options|
+    unless options.override_url
+      begin
+        accounts_response = NetworkHelpers.validate_accounts_token(options)
+      rescue => error
+        color "Cannot validate Token. Request failed: #{error}", :red
+      end
+
+      case accounts_response
+      when Net::HTTPSuccess
+        color("Token valid, posting plugin...", :green)
+      when Net::HTTPUnauthorized
+        color "Invalid token", :red
+        exit
+      else
+        color "Cannot validate token, please try later.", :red
+      end
+    end
+
     url = options.override_url || NetworkHelpers::ZAPP_URL
     params = NetworkHelpers.set_request_params(options)
     mp = Multipart::MultipartPost.new
