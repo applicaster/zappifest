@@ -43,7 +43,7 @@ module NetworkHelpers
     {}.tap do |params|
       params["access_token"] = options.access_token
       params["plugin[manifest]"] = manifest_file
-      params["plugin[name]"] = "#{manifest_data['name']} - #{manifest_data['platform']}"
+      params["plugin[name]"] = "#{manifest_data['name']}"
       params["plugin[author_email]"] = manifest_data["author_email"]
       params["plugin[category]"] = manifest_data["type"]
       params["plugin[identifier]"] = manifest_data["identifier"]
