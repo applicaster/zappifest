@@ -9,7 +9,7 @@ require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.11.0'
+program :version, '0.12.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -192,7 +192,9 @@ command :publish do |c|
 
     begin
       if options.plugin_id
-        response = NetworkHelpers.put_request("#{url}/#{options.plugin_id}", query, headers)
+        if agree "Are you sure? This will override an existing plugin"
+          response = NetworkHelpers.put_request("#{url}/#{options.plugin_id}", query, headers)
+        end
       else
         response = NetworkHelpers.post_request(url, query, headers)
       end

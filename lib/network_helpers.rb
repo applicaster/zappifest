@@ -47,6 +47,8 @@ module NetworkHelpers
       params["plugin[author_email]"] = manifest_data["author_email"]
       params["plugin[category]"] = manifest_data["type"]
       params["plugin[identifier]"] = manifest_data["identifier"]
+      params["plugin[manifest_version]"] = manifest_data["manifest_version"]
+      params["plugin[platform]"] = manifest_data["platform"]
     end
   end
 end
