@@ -2,6 +2,7 @@ module NetworkHelpers
   require 'net/http'
 
   ZAPP_URL = "https://zapp.applicaster.com/api/v1/admin/plugins"
+  MANIFEST_URL = "https://assets-secure.applicaster.com/zapp/plugins/manifests"
   ACCOUNTS_URL = "https://accounts.applicaster.com/api/v1"
 
   module_function
@@ -14,6 +15,18 @@ module NetworkHelpers
 
       return connection.get(
         "#{uri.path}/users/current.json?access_token=#{options.access_token}",
+      )
+    end
+  end
+
+  def get_current_manifest(plugin_name, plugin_id)
+    uri = URI.parse(MANIFEST_URL)
+
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
+      connection.read_timeout = 10
+
+      return connection.get(
+        "#{uri.path}/#{plugin_id}/#{plugin_name.downcase.gsub(/\s+/, "_")}/plugin_manifest.json",
       )
     end
   end
