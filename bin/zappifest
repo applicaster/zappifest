@@ -5,11 +5,14 @@ require 'commander/import'
 require 'json'
 require 'uri'
 require 'net/http'
+require 'diffy'
+require 'pry'
+require 'terminal-table'
 require_relative '../lib/multipart'
 require_relative '../lib/network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.12.1'
+program :version, '0.13.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -192,14 +195,34 @@ command :publish do |c|
 
     begin
       if options.plugin_id
-        if agree "Are you sure? This will override an existing plugin"
+        color "Showing diff...", :green
+        new_manifest = JSON.parse(File.open(options.manifest).read)
+
+        current_manifest = JSON.parse(
+          NetworkHelpers.get_current_manifest(new_manifest["name"], options.plugin_id).body
+        )
+
+        diff = Diffy::SplitDiff.new(
+          JSON.pretty_generate(current_manifest), JSON.pretty_generate(new_manifest),
+          format: :color
+        )
+
+        table = Terminal::Table.new do |t|
+          t << ["Remote Manifest", "Local Manifset"]
+          t << :separator
+          t.add_row [diff.left, diff.right]
+        end
+
+        puts table
+
+        if agree "Are you sure? (This will override an existing plugin)"
           response = NetworkHelpers.put_request("#{url}/#{options.plugin_id}", query, headers)
         end
       else
         response = NetworkHelpers.post_request(url, query, headers)
       end
     rescue => error
-      color "Request failed: #{error}", :red
+      color "Failed with the following error: #{error.message}", :red
     end
 
     case response
