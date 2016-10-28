@@ -1,18 +1,15 @@
-#!/usr/bin/env ruby
-
 require 'rubygems'
 require 'commander/import'
 require 'json'
 require 'uri'
 require 'net/http'
 require 'diffy'
-require 'pry'
 require 'terminal-table'
-require_relative '../lib/multipart'
-require_relative '../lib/network_helpers'
+require_relative 'multipart'
+require_relative 'network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.13.0'
+program :version, '0.13.1'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
