@@ -9,7 +9,7 @@ require_relative 'multipart'
 require_relative 'network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.13.2'
+program :version, '0.14.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
