@@ -59,7 +59,9 @@ command :init do |c|
       q.responses[:not_valid] = "Identifier cannot be blank."
     end
 
-    manifest_hash[:type] = choose("Type: \n", :player, :menu, :analytics, :payments, :auth_provider)
+    manifest_hash[:type] = choose("Type: \n",
+      :player, :menu, :analytics, :payments, :auth_provider, :broadcaster_selector, :general)
+
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
 
     # temporary: supporting ios parsing - differentiate platforms
