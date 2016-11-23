@@ -20,7 +20,6 @@ brew install zappifest
 
 #### Upgrade
 ```bash
-brew update 
 brew upgrade zappifest 
 ```
 
@@ -30,12 +29,16 @@ Zappifest allows fast configuration for Zapp plugin-manifest.json file.
 Just run `zappifest init` and follow the instructions.
 
 ### Publish
+
+#### Prerequisites
+Reach Applicaster support team to generate User access-token.
+
 The tool allow you to publish the plugin to Zapp.
 
 Run `zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token>`
 
 #### Updating existing plugin
-Check the plugin id on [Zapp](https://zapp.applicaster.com/admin/plugins) and add it to the command as follows:
+Check the plugin id on [Zapp](https://zapp.applicaster.com/admin/plugins) (under the relevant plugin versions). 
 
 Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json-file> --access-token <zapp-access-token>`
 
