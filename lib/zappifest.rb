@@ -9,7 +9,7 @@ require_relative 'multipart'
 require_relative 'network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.14.0'
+program :version, '0.15.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -232,7 +232,7 @@ command :publish do |c|
     when Net::HTTPInternalServerError
       color "Request failed: HTTPInternalServerError", :red
     else
-      color "Unknown error: #{response}", :red
+      color "Error: #{response.body}", :red
     end
   end
 end
