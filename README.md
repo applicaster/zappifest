@@ -8,7 +8,7 @@
       ........::..:::::..::..:::::::::..:::::::::....::..::::::::........:::......::::::..:::::
 
 
-Cli app to generate Zapp plugin manifest.
+Cli app to generate and publish Zapp plugin manifest.
 
 #### Installation
 
