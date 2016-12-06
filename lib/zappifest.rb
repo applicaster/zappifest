@@ -60,7 +60,7 @@ command :init do |c|
     end
 
     manifest_hash[:type] = choose("Type: \n",
-      :player, :menu, :analytics, :payments, :auth_provider, :broadcaster_selector, :general)
+      :player, :menu, :analytics, :payments, :auth_provider, :broadcaster_selector, :push_provider, :general)
 
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
 
