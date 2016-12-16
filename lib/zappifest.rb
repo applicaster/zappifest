@@ -59,8 +59,18 @@ command :init do |c|
       q.responses[:not_valid] = "Identifier cannot be blank."
     end
 
-    manifest_hash[:type] = choose("Type: \n",
-      :player, :menu, :analytics, :payments, :auth_provider, :broadcaster_selector, :push_provider, :general)
+    manifest_hash[:type] = choose(
+      "Type: \n",
+      :player,
+      :menu,
+      :analytics,
+      :payments,
+      :auth_provider,
+      :broadcaster_selector,
+      :push_provider,
+      :ui_component,
+      :general,
+    )
 
     manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
 
@@ -129,6 +139,11 @@ command :init do |c|
         field_hash = {}
         color "Custom field #{index + 1}", :yellow
         color "---------------------", :yellow
+
+        field_hash[:section] = choose "Section (optional): \n" do |menu|
+          menu.choices(:general, :data, :styles, :rules)
+          menu.default = :general
+        end
 
         field_hash[:type] = choose(
           "Choose field type: \n",
