@@ -9,7 +9,7 @@ require_relative 'multipart'
 require_relative 'network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.17.0'
+program :version, '0.18.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -156,11 +156,14 @@ command :init do |c|
         end
 
         if field_hash[:type] == :dropdown
+            field_hash[:multiple] = agree "Multiple select?"
             field_hash[:options] = ask "Enter dropdown options (or blank line to quit)" do |q|
               q.gather = ""
             end
         end
 
+        default = ask "What is the default value?"
+        field_hash[:default] = default unless default.empty?
 
         manifest_hash[:custom_configuration_fields].push(field_hash)
         color "Custom field #{index + 1} added!", :green
