@@ -2,6 +2,7 @@ require 'rubygems'
 require 'commander/import'
 require 'json'
 require 'uri'
+require 'inquirer'
 require 'net/http'
 require 'diffy'
 require 'terminal-table'
@@ -9,7 +10,7 @@ require_relative 'multipart'
 require_relative 'network_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.18.0'
+program :version, '0.19.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -35,32 +36,31 @@ command :init do |c|
 
     manifest_hash = { api: {}, dependency_repository_url: [] }
 
-    manifest_hash[:author_name] = ask("Author Name: ") do |q|
+    manifest_hash[:author_name] = ask("[?] Author Name: ") do |q|
       q.validate = /^(?!\s*$).+/
       q.responses[:not_valid] = "Author cannot be blank."
     end
 
-    manifest_hash[:author_email] = ask("Author Email: ") do |q|
+    manifest_hash[:author_email] = ask("[?] Author Email: ") do |q|
       q.validate = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
       q.responses[:not_valid] = "Should be a valid email."
     end
 
-    manifest_hash[:manifest_version] = ask("Manifest version: ") { |q| q.default = "0.1.0" }
+    manifest_hash[:manifest_version] = ask("[?] Manifest version: ") { |q| q.default = "0.1.0" }
 
-    manifest_hash[:name] = ask("Plugin Name: ") do |q|
+    manifest_hash[:name] = ask("[?] Plugin Name: ") do |q|
       q.validate = /^(?!\s*$).+/
       q.responses[:not_valid] = "Name cannot be blank."
     end
 
-    manifest_hash[:description] = ask "Plugin description (optional): "
+    manifest_hash[:description] = ask "[?] Plugin description (optional): "
 
-    manifest_hash[:identifier] = ask("Plugin identifier: ") do |q|
+    manifest_hash[:identifier] = ask("[?] Plugin identifier: ") do |q|
       q.validate = /^(?!\s*$).+/
       q.responses[:not_valid] = "Identifier cannot be blank."
     end
 
-    manifest_hash[:type] = choose(
-      "Type: \n",
+    categories = [
       :player,
       :menu,
       :analytics,
@@ -70,23 +70,28 @@ command :init do |c|
       :push_provider,
       :ui_component,
       :general,
-    )
+    ]
 
-    manifest_hash[:platform] = choose("Platform: \n", :ios, :android, :tvos)
+    type_index = Ask.list "[?] Type", categories
+    manifest_hash[:type] = categories[type_index]
+
+    platforms = %i(ios android tvos)
+    platform_index = Ask.list "[?] Platform", platforms
+    manifest_hash[:platform] = platforms[platform_index]
 
     # temporary: supporting ios parsing - differentiate platforms
     if manifest_hash[:platform] == :android
       dependency_repositories_count = ask(
-        "Number of additional dependency repositories that will be in use: ",
+        "[?] Number of additional dependency repositories that will be in use: ",
         Integer
       ) { |q| q.in = 0..50 }
 
       if dependency_repositories_count > 0
         manifest_hash[:dependency_repository_url] = [].tap do |result|
           dependency_repositories_count.times do
-            repo_url = ask("Repository URL: ")
-            repo_username = ask("Username: ")
-            repo_password = ask("Password: ")
+            repo_url = ask("[?] Repository URL: ")
+            repo_username = ask("[?] Username: ")
+            repo_password = ask("[?] Password: ") { |q| q.echo = "*" }
 
             result.push(
               { url: repo_url, credentials: { username: repo_username, password: repo_password } }
@@ -97,31 +102,31 @@ command :init do |c|
     else
       # ios or tvos
       manifest_hash[:dependency_repository_url] = ask(
-      "Repository urls (optional, will use default ones if blank. " +
+      "[?] Repository urls (optional, will use default ones if blank. " +
       "URLs must be valid, otherwise will not be saved. " +
       "Press 'return' key between values, and 'return key' to finish):",
       -> (repo) { repo =~ /^$|#{URI::regexp(%w(http https))}/ ? repo : nil } ) { |q| q.gather = "" }
     end
 
-    manifest_hash[:min_zapp_sdk] = ask("Min Zapp SDK: (Leave blank if no restrictions) ")
+    manifest_hash[:min_zapp_sdk] = ask("[?] Min Zapp SDK: (Leave blank if no restrictions) ")
 
-    manifest_hash[:dependency_name] = ask("Package name: ") do |q|
+    manifest_hash[:dependency_name] = ask("[?] Package name: ") do |q|
       q.validate = /^[\S]+$/
       q.responses[:not_valid] = "Package name cannot be blank or contains whitespaces."
     end
 
-    manifest_hash[:dependency_version] = ask("Package version: ") do |q|
+    manifest_hash[:dependency_version] = ask("[?] Package version: ") do |q|
       q.validate = /^[\S]+$/
       q.responses[:not_valid] = "Package version cannot be blank or contains whitespaces."
     end
 
-    manifest_hash[:api][:class_name] = ask("Class Name: ") do |q|
+    manifest_hash[:api][:class_name] = ask("[?] Class Name: ") do |q|
       q.validate = /^(?!\s*$).+/
       q.responses[:not_valid] = "Class name cannot be blank."
     end
 
     if manifest_hash[:platform] == :android
-      add_proguard_rules = agree "Need to add custom Proguard rules? (will open a text editor)"
+      add_proguard_rules = agree "[?] Need to add custom Proguard rules? (will open a text editor)"
       if add_proguard_rules
         manifest_hash[:api][:proguard_rules] = ask_editor(nil, "vim")
       end
@@ -130,40 +135,51 @@ command :init do |c|
     say "Custom configuration fields: \n"
     manifest_hash[:custom_configuration_fields] = []
 
-    add_custom_fields = agree "Wanna add custom fields? "
+    add_custom_fields = agree "[?] Wanna add custom fields? "
 
     if add_custom_fields
-      custom_fields_count = ask("How many? ", Integer) { |q| q.in = 1..10 }
+      custom_fields_count = ask("[?] How many? ", Integer) { |q| q.in = 1..10 }
 
       custom_fields_count.times do |index|
         field_hash = {}
         color "Custom field #{index + 1}", :yellow
         color "---------------------", :yellow
 
-        field_hash[:section] = choose "Section (optional): \n" do |menu|
-          menu.choices(:general, :data, :styles, :rules)
-          menu.default = :general
-        end
+        input_types = %i(text checkbox textarea dropdown)
+        input_type_index = Ask.list "[?] Input field type", input_types
+        field_hash[:type] = input_types[input_type_index]
 
-        field_hash[:type] = choose(
-          "Choose field type: \n",
-          :text, :checkbox, :textarea, :dropdown,
-        )
-
-        field_hash[:key] = ask "What is the key for this field?" do |q|
+        field_hash[:key] = ask "[?] What is the key for this field?" do |q|
           q.validate = /^[\S]+$/
           q.responses[:not_valid] = "Custom Key cannot be blank and contain whitespaces."
         end
 
         if field_hash[:type] == :dropdown
-            field_hash[:multiple] = agree "Multiple select?"
-            field_hash[:options] = ask "Enter dropdown options (or blank line to quit)" do |q|
+            field_hash[:multiple] = agree "[?] Multiple select?"
+            field_hash[:options] = ask "[?] Enter dropdown options (or blank line to quit)" do |q|
               q.gather = ""
             end
         end
 
-        default = ask "What is the default value?"
-        field_hash[:default] = default unless default.empty?
+        case field_hash[:type]
+        when :dropdown
+          if field_hash[:multiple]
+            booleans_array = Ask.checkbox "[?] Select defaults", field_hash[:options] + ["No Default"]
+            default_indices = booleans_array.each_index.select { |i| booleans_array[i] == true }
+            values = field_hash[:options].values_at(*default_indices)
+            default = values.include?("No Default") ? "" : values
+          else
+            default_index = Ask.list "[?] Select default", field_hash[:options] + ["No Default"]
+            value = field_hash[:options][default_index]
+            default = value == "No Default" ? "" : value
+          end
+        when :checkbox
+          default =  Ask.list "[?] Select default", %w(0 1)
+        else
+          default = ask "[?] What is the default value?"
+        end
+
+        field_hash[:default] = default unless default.to_s.empty?
 
         manifest_hash[:custom_configuration_fields].push(field_hash)
         color "Custom field #{index + 1} added!", :green
