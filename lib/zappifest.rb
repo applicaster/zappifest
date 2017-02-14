@@ -2,15 +2,17 @@ require 'rubygems'
 require 'commander/import'
 require 'json'
 require 'uri'
+require 'pry'
 require 'inquirer'
 require 'net/http'
 require 'diffy'
 require 'terminal-table'
 require_relative 'multipart'
 require_relative 'network_helpers'
+require_relative 'manifest_helpers'
 
 program :name, 'Zappifest'
-program :version, '0.19.0'
+program :version, '0.20.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -221,10 +223,19 @@ command :publish do |c|
       end
     end
 
+    manifest = JSON.parse(File.open(options.manifest).read)
+    diff_keys = manifest.keys - ManifestHelpers::WHITELIST_KEYS
+
+    if diff_keys.any?
+      color "Manifest contains unpermitted keys: #{diff_keys.to_s}", :red
+      exit
+    end
+
     url = options.override_url || NetworkHelpers::ZAPP_URL
     params = NetworkHelpers.set_request_params(options)
     mp = Multipart::MultipartPost.new
     query, headers = mp.prepare_query(params)
+    headers.merge!({"User-Agent" => "Zappifest/0.20"})
 
     begin
       if options.plugin_id
