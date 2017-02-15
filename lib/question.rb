@@ -16,6 +16,6 @@ module Question
   end
 
   def ask_base(question)
-    ask("[?] #{question} ")
+    ask("[?] #{question}")
   end
 end
