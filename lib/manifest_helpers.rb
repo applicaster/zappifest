@@ -14,5 +14,22 @@ module ManifestHelpers
     "dependency_name",
     "dependency_version",
     "custom_configuration_fields",
+    "react_native",
   ]
+
+  CATEGORIES = [
+    :player,
+    :menu,
+    :analytics,
+    :payments,
+    :auth_provider,
+    :broadcaster_selector,
+    :push_provider,
+    :ui_component,
+    :general,
+  ]
+
+  PLATFORMS = %i(ios android tvos)
+
+  INPUT_FIELD_TYPES = %i(text checkbox textarea dropdown tags)
 end

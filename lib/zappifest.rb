@@ -2,7 +2,6 @@ require 'rubygems'
 require 'commander/import'
 require 'json'
 require 'uri'
-require 'pry'
 require 'inquirer'
 require 'net/http'
 require 'diffy'
@@ -10,9 +9,10 @@ require 'terminal-table'
 require_relative 'multipart'
 require_relative 'network_helpers'
 require_relative 'manifest_helpers'
+require_relative 'question'
 
 program :name, 'Zappifest'
-program :version, '0.20.0'
+program :version, '0.21.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -33,15 +33,12 @@ command :init do |c|
       :blue,
     )
 
-    color "This utility will walk you through creating a manifest.json file.", :green
+    color "This utility will walk you through creating a plugin-manifest.json file.", :green
     color "It only covers the most common items, and tries to guess sensible defaults.\n", :green
 
     manifest_hash = { api: {}, dependency_repository_url: [] }
 
-    manifest_hash[:author_name] = ask("[?] Author Name: ") do |q|
-      q.validate = /^(?!\s*$).+/
-      q.responses[:not_valid] = "Author cannot be blank."
-    end
+    manifest_hash[:author_name] = Question.ask_non_empty("Author Name:", "author")
 
     manifest_hash[:author_email] = ask("[?] Author Email: ") do |q|
       q.validate = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
@@ -49,37 +46,15 @@ command :init do |c|
     end
 
     manifest_hash[:manifest_version] = ask("[?] Manifest version: ") { |q| q.default = "0.1.0" }
+    manifest_hash[:name] = Question.ask_non_empty("Plugin Name:", "name")
+    manifest_hash[:description] = Question.ask_non_empty("Plugin description:", "description")
+    manifest_hash[:identifier] = Question.ask_non_empty("Plugin identifier:", "identifier")
 
-    manifest_hash[:name] = ask("[?] Plugin Name: ") do |q|
-      q.validate = /^(?!\s*$).+/
-      q.responses[:not_valid] = "Name cannot be blank."
-    end
+    type_index = Ask.list "[?] Category", ManifestHelpers::CATEGORIES
+    manifest_hash[:type] = ManifestHelpers::CATEGORIES[type_index]
 
-    manifest_hash[:description] = ask "[?] Plugin description (optional): "
-
-    manifest_hash[:identifier] = ask("[?] Plugin identifier: ") do |q|
-      q.validate = /^(?!\s*$).+/
-      q.responses[:not_valid] = "Identifier cannot be blank."
-    end
-
-    categories = [
-      :player,
-      :menu,
-      :analytics,
-      :payments,
-      :auth_provider,
-      :broadcaster_selector,
-      :push_provider,
-      :ui_component,
-      :general,
-    ]
-
-    type_index = Ask.list "[?] Type", categories
-    manifest_hash[:type] = categories[type_index]
-
-    platforms = %i(ios android tvos)
-    platform_index = Ask.list "[?] Platform", platforms
-    manifest_hash[:platform] = platforms[platform_index]
+    platform_index = Ask.list "[?] Platform", ManifestHelpers::PLATFORMS
+    manifest_hash[:platform] = ManifestHelpers::PLATFORMS[platform_index]
 
     # temporary: supporting ios parsing - differentiate platforms
     if manifest_hash[:platform] == :android
@@ -91,8 +66,8 @@ command :init do |c|
       if dependency_repositories_count > 0
         manifest_hash[:dependency_repository_url] = [].tap do |result|
           dependency_repositories_count.times do
-            repo_url = ask("[?] Repository URL: ")
-            repo_username = ask("[?] Username: ")
+            repo_url = Question.ask_base("Repository URL:")
+            repo_username = Question.ask_base("Username:")
             repo_password = ask("[?] Password: ") { |q| q.echo = "*" }
 
             result.push(
@@ -110,22 +85,10 @@ command :init do |c|
       -> (repo) { repo =~ /^$|#{URI::regexp(%w(http https))}/ ? repo : nil } ) { |q| q.gather = "" }
     end
 
-    manifest_hash[:min_zapp_sdk] = ask("[?] Min Zapp SDK: (Leave blank if no restrictions) ")
-
-    manifest_hash[:dependency_name] = ask("[?] Package name: ") do |q|
-      q.validate = /^[\S]+$/
-      q.responses[:not_valid] = "Package name cannot be blank or contains whitespaces."
-    end
-
-    manifest_hash[:dependency_version] = ask("[?] Package version: ") do |q|
-      q.validate = /^[\S]+$/
-      q.responses[:not_valid] = "Package version cannot be blank or contains whitespaces."
-    end
-
-    manifest_hash[:api][:class_name] = ask("[?] Class Name: ") do |q|
-      q.validate = /^(?!\s*$).+/
-      q.responses[:not_valid] = "Class name cannot be blank."
-    end
+    manifest_hash[:min_zapp_sdk] = Question.ask_base("Min Zapp SDK: (Leave blank if no restrictions)")
+    manifest_hash[:dependency_name] = Question.ask_non_whitespaces("Package name:", "Package name")
+    manifest_hash[:dependency_version] = Question.ask_non_whitespaces("Package version:", "Package version")
+    manifest_hash[:api][:class_name] = Question.ask_non_empty("Class Name:", "Class Name")
 
     if manifest_hash[:platform] == :android
       add_proguard_rules = agree "[?] Need to add custom Proguard rules? (will open a text editor)"
@@ -134,9 +97,27 @@ command :init do |c|
       end
     end
 
-    say "Custom configuration fields: \n"
     manifest_hash[:custom_configuration_fields] = []
 
+    manifest_hash[:react_native] = agree "[?] React Native plugin? (Y/n)"
+
+    if manifest_hash[:react_native]
+      default = Question.ask_base "Default dependencies: (comma seperated)"
+      extra_dependencies = { key: "extra_dependencies", type: :tags, default: default.gsub!(" ", "") }
+      manifest_hash[:custom_configuration_fields].push(extra_dependencies)
+
+      default = Question.ask_base "Default npm dependencies: (comma seperated)"
+      npm_dependencies = { key: "npm_dependencies", type: :tags, default: default.gsub!(" ", "") }
+      manifest_hash[:custom_configuration_fields].push(npm_dependencies)
+
+      if manifest_hash[:platform] == :android
+        default = Question.ask_base "React Packages: (comma seperated)"
+        react_packages = { key: "react_packages", type: :tags, default: default.gsub!(" ", "") }
+        manifest_hash[:custom_configuration_fields].push(react_packages)
+      end
+    end
+
+    say "Custom configuration fields: \n"
     add_custom_fields = agree "[?] Wanna add custom fields? "
 
     if add_custom_fields
@@ -147,14 +128,10 @@ command :init do |c|
         color "Custom field #{index + 1}", :yellow
         color "---------------------", :yellow
 
-        input_types = %i(text checkbox textarea dropdown)
-        input_type_index = Ask.list "[?] Input field type", input_types
-        field_hash[:type] = input_types[input_type_index]
+        input_type_index = Ask.list "[?] Input field type", ManifestHelpers::INPUT_FIELD_TYPES
+        field_hash[:type] = ManifestHelpers::INPUT_FIELD_TYPES[input_type_index]
 
-        field_hash[:key] = ask "[?] What is the key for this field?" do |q|
-          q.validate = /^[\S]+$/
-          q.responses[:not_valid] = "Custom Key cannot be blank and contain whitespaces."
-        end
+        field_hash[:key] = Question.ask_non_whitespaces("What is the key for this field?", "Custom key")
 
         if field_hash[:type] == :dropdown
             field_hash[:multiple] = agree "[?] Multiple select?"
@@ -177,8 +154,11 @@ command :init do |c|
           end
         when :checkbox
           default =  Ask.list "[?] Select default", %w(0 1)
+        when :tags
+          default = Question.ask_base "Default values: (comma seperated)"
+          default.gsub!(" ", "")
         else
-          default = ask "[?] What is the default value?"
+          default = Question.ask_base "What is the default value?"
         end
 
         field_hash[:default] = default unless default.to_s.empty?
@@ -235,7 +215,7 @@ command :publish do |c|
     params = NetworkHelpers.set_request_params(options)
     mp = Multipart::MultipartPost.new
     query, headers = mp.prepare_query(params)
-    headers.merge!({"User-Agent" => "Zappifest/0.20"})
+    headers.merge!({"User-Agent" => "Zappifest/0.21"})
 
     begin
       if options.plugin_id
