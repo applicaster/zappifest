@@ -17,7 +17,6 @@ module ManifestHelpers
     "react_native",
     "extra_dependencies",
     "npm_dependencies",
-    "react_packages",
   ]
 
   CATEGORIES = [

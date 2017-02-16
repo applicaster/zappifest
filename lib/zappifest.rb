@@ -12,7 +12,7 @@ require_relative 'manifest_helpers'
 require_relative 'question'
 
 program :name, 'Zappifest'
-program :version, '0.22.0'
+program :version, '0.23.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -102,7 +102,7 @@ command :init do |c|
     if manifest_hash[:react_native]
       manifest_hash[:extra_dependencies] = []
 
-      extra_dependencies_count = ask("[?] Number of extra dependencies: ", Integer) { |q| q.in = 1..10 }
+      extra_dependencies_count = ask("[?] Number of extra dependencies: ", Integer) { |q| q.in = 0..10 }
 
       extra_dependencies_count.times do |index|
         dependency = {}
@@ -122,7 +122,7 @@ command :init do |c|
       end
 
       if manifest_hash[:platform] == :android
-        manifest_hash[:react_packages] = ask "[?] React Packages: (or blank line to quit)" do |q|
+        manifest_hash[:api][:react_packages] = ask "[?] React Packages: (or blank line to quit)" do |q|
           q.gather = ""
         end
       end
@@ -228,7 +228,7 @@ command :publish do |c|
     params = NetworkHelpers.set_request_params(options)
     mp = Multipart::MultipartPost.new
     query, headers = mp.prepare_query(params)
-    headers.merge!({"User-Agent" => "Zappifest/0.22"})
+    headers.merge!({"User-Agent" => "Zappifest/0.23"})
 
     begin
       if options.plugin_id
