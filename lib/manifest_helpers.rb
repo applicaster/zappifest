@@ -15,6 +15,9 @@ module ManifestHelpers
     "dependency_version",
     "custom_configuration_fields",
     "react_native",
+    "extra_dependencies",
+    "npm_dependencies",
+    "react_packages",
   ]
 
   CATEGORIES = [
