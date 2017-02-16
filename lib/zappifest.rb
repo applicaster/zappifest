@@ -12,7 +12,7 @@ require_relative 'manifest_helpers'
 require_relative 'question'
 
 program :name, 'Zappifest'
-program :version, '0.21.0'
+program :version, '0.22.0'
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -228,7 +228,7 @@ command :publish do |c|
     params = NetworkHelpers.set_request_params(options)
     mp = Multipart::MultipartPost.new
     query, headers = mp.prepare_query(params)
-    headers.merge!({"User-Agent" => "Zappifest/0.21"})
+    headers.merge!({"User-Agent" => "Zappifest/0.22"})
 
     begin
       if options.plugin_id
