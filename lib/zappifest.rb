@@ -88,6 +88,9 @@ command :init do |c|
     manifest_hash[:min_zapp_sdk] = Question.ask_base("Min Zapp SDK: (Leave blank if no restrictions)")
     manifest_hash[:dependency_name] = Question.ask_non_whitespaces("Package name:", "Package name")
     manifest_hash[:dependency_version] = Question.ask_non_whitespaces("Package version:", "Package version")
+    manifest_hash[:api][:require_startup_execution] = agree "[?] Plugin requires app startup execution? (Y/n)\n" +
+      "By setting to true, the plugin must implement app startup interface"
+
     manifest_hash[:api][:class_name] = Question.ask_non_empty("Class Name:", "Class Name")
 
     if manifest_hash[:platform] == :android
