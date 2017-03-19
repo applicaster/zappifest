@@ -28,6 +28,7 @@ module ManifestHelpers
     :broadcaster_selector,
     :push_provider,
     :ui_component,
+    :login,
     :general,
   ]
 
