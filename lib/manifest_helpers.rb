@@ -34,5 +34,5 @@ module ManifestHelpers
 
   PLATFORMS = %i(ios android tvos)
 
-  INPUT_FIELD_TYPES = %i(text checkbox textarea dropdown tags)
+  INPUT_FIELD_TYPES = %i(text checkbox textarea dropdown tags colorpicker)
 end

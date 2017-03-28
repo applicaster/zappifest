@@ -6,13 +6,14 @@ require 'inquirer'
 require 'net/http'
 require 'diffy'
 require 'terminal-table'
+require_relative 'version'
 require_relative 'multipart'
 require_relative 'network_helpers'
 require_relative 'manifest_helpers'
 require_relative 'question'
 
 program :name, 'Zappifest'
-program :version, '0.24.0'
+program :version, VERSION
 program :description, 'Tool to generate Zapp plugin manifest'
 
 command :init do |c|
@@ -231,7 +232,7 @@ command :publish do |c|
     params = NetworkHelpers.set_request_params(options)
     mp = Multipart::MultipartPost.new
     query, headers = mp.prepare_query(params)
-    headers.merge!({"User-Agent" => "Zappifest/0.24.0"})
+    headers.merge!({"User-Agent" => "Zappifest/#{VERSION}"})
 
     begin
       if options.plugin_id
