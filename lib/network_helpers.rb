@@ -62,6 +62,7 @@ module NetworkHelpers
       params["plugin[identifier]"] = manifest_data["identifier"]
       params["plugin[manifest_version]"] = manifest_data["manifest_version"]
       params["plugin[platform]"] = manifest_data["platform"]
+      params["plugin[whitelisted_account_ids][]"] = manifest_data["whitelisted_account_ids"]
     end
   end
 end

@@ -101,6 +101,12 @@ command :init do |c|
       end
     end
 
+    manifest_hash[:whitelisted_account_ids] = []
+    whitelisted_account_ids = Question.ask_base("Whitelisted account ids: (comma seperated, leave blank if no restrictions apply)")
+
+    manifest_hash[:whitelisted_account_ids] = whitelisted_account_ids.gsub!(" ","")
+      .split(",") if whitelisted_account_ids
+
     manifest_hash[:react_native] = agree "[?] React Native plugin? (Y/n)"
 
     if manifest_hash[:react_native]
