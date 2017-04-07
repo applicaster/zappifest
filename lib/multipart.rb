@@ -6,6 +6,7 @@ module Multipart
 
   class Param
     attr_accessor :key, :value
+
     def initialize(key, value)
       @key = key
       @value = value
@@ -18,6 +19,7 @@ module Multipart
 
   class FileParam
     attr_accessor :key, :filename, :content
+
     def initialize(key, filename, content)
       @key = key
       @filename = filename
@@ -33,13 +35,17 @@ module Multipart
   end
 
   class MultipartPost
-    BOUNDARY = 'tarsiers-rule0000'
+    BOUNDARY = "tarsiers-rule0000"
     HEADER = { "Content-type" => "multipart/form-data, boundary=" + BOUNDARY + " " }
 
     def prepare_query(params)
       normalized_params = params.each_with_object([]) do |(key, value), result|
         if value.respond_to?(:read)
           result.push(FileParam.new(key, value.path, value.read))
+        elsif value.kind_of?(Array)
+          value.each do |array_element|
+            result.push(Param.new(key, array_element))
+          end
         else
           result.push(Param.new(key,value))
         end

@@ -17,6 +17,7 @@ module ManifestHelpers
     "react_native",
     "extra_dependencies",
     "npm_dependencies",
+    "whitelisted_account_ids",
   ]
 
   CATEGORIES = [
