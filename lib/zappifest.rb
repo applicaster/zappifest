@@ -5,11 +5,18 @@ require 'uri'
 require 'inquirer'
 require 'net/http'
 require 'diffy'
+require 'pry'
 require 'terminal-table'
+
 require_relative 'version'
 require_relative 'multipart'
 require_relative 'network_helpers'
 require_relative 'manifest_helpers'
+require_relative 'default_questions_helper'
+require_relative 'react_native_questions_helper'
+require_relative 'api_questions_helper'
+require_relative 'custom_fields_questions_helper'
+require_relative 'data_source_provider_questions_helper'
 require_relative 'question'
 
 program :name, 'Zappifest'
@@ -37,165 +44,22 @@ command :init do |c|
     color "This utility will walk you through creating a plugin-manifest.json file.", :green
     color "It only covers the most common items, and tries to guess sensible defaults.\n", :green
 
-    manifest_hash = { api: {}, dependency_repository_url: [] }
+    manifest_hash = DefaultQuestionsHelper.ask_base_questions
 
-    manifest_hash[:author_name] = Question.ask_non_empty("Author Name:", "author")
-
-    manifest_hash[:author_email] = ask("[?] Author Email: ") do |q|
-      q.validate = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
-      q.responses[:not_valid] = "Should be a valid email."
-    end
-
-    manifest_hash[:manifest_version] = ask("[?] Manifest version: ") { |q| q.default = "0.1.0" }
-    manifest_hash[:name] = Question.ask_non_empty("Plugin Name:", "name")
-    manifest_hash[:description] = Question.ask_non_empty("Plugin description:", "description")
-    manifest_hash[:identifier] = Question.ask_non_empty("Plugin identifier:", "identifier")
-
-    type_index = Ask.list "[?] Category", ManifestHelpers::CATEGORIES
-    manifest_hash[:type] = ManifestHelpers::CATEGORIES[type_index]
-
-    platform_index = Ask.list "[?] Platform", ManifestHelpers::PLATFORMS
-    manifest_hash[:platform] = ManifestHelpers::PLATFORMS[platform_index]
-
-    # temporary: supporting ios parsing - differentiate platforms
-    if manifest_hash[:platform] == :android
-      dependency_repositories_count = ask(
-        "[?] Number of additional dependency repositories that will be in use: ",
-        Integer
-      ) { |q| q.in = 0..50 }
-
-      if dependency_repositories_count > 0
-        manifest_hash[:dependency_repository_url] = [].tap do |result|
-          dependency_repositories_count.times do
-            repo_url = Question.ask_base("Repository URL:")
-            repo_username = Question.ask_base("Username:")
-            repo_password = ask("[?] Password: ") { |q| q.echo = "*" }
-
-            result.push(
-              { url: repo_url, credentials: { username: repo_username, password: repo_password } }
-            )
-          end
-        end
-      end
+    if manifest_hash[:type].to_s == "data_source_provider"
+      DataSourceProviderQuestionsHelper.ask_data_provider_questions(manifest_hash)
     else
-      # ios or tvos
-      manifest_hash[:dependency_repository_url] = ask(
-      "[?] Repository urls (optional, will use default ones if blank. " +
-      "URLs must be valid, otherwise will not be saved. " +
-      "Press 'return' key between values, and 'return key' to finish):",
-      -> (repo) { repo =~ /^$|#{URI::regexp(%w(http https))}/ ? repo : nil } ) { |q| q.gather = "" }
+      ApiQuestionsHelper.ask_for_api(manifest_hash)
+      ReactNativeQuestionsHelper.ask_for_react_native(manifest_hash)
+      CustomFieldsQuestionsHelper.ask_for_custom_fields(manifest_hash)
     end
 
-    manifest_hash[:min_zapp_sdk] = Question.ask_base("Min Zapp SDK: (Leave blank if no restrictions)")
-    manifest_hash[:dependency_name] = Question.ask_non_whitespaces("Package name:", "Package name")
-    manifest_hash[:dependency_version] = Question.ask_non_whitespaces("Package version:", "Package version")
-    manifest_hash[:api][:require_startup_execution] = agree "[?] Plugin requires app startup execution? (Y/n)\n" +
-      "By setting to true, the plugin must implement app startup interface"
+    ManifestHelpers.create_file(manifest_hash)
 
-    manifest_hash[:api][:class_name] = Question.ask_non_empty("Class Name:", "Class Name")
-
-    if manifest_hash[:platform] == :android
-      add_proguard_rules = agree "[?] Need to add custom Proguard rules? (will open a text editor)"
-      if add_proguard_rules
-        manifest_hash[:api][:proguard_rules] = ask_editor(nil, "vim")
-      end
-    end
-
-    manifest_hash[:whitelisted_account_ids] = []
-    whitelisted_account_ids = Question.ask_base("Whitelisted account ids: (comma seperated, leave blank if no restrictions apply)")
-
-    manifest_hash[:whitelisted_account_ids] = whitelisted_account_ids.gsub(" ","")
-      .split(",") if whitelisted_account_ids
-
-    manifest_hash[:react_native] = agree "[?] React Native plugin? (Y/n)"
-
-    if manifest_hash[:react_native]
-      manifest_hash[:extra_dependencies] = []
-
-      extra_dependencies_count = ask("[?] Number of extra dependencies: ", Integer) { |q| q.in = 0..10 }
-
-      extra_dependencies_count.times do |index|
-        dependency = {}
-        color "Dependency #{index + 1}", :yellow
-        color "---------------------", :yellow
-
-        name = Question.ask_non_whitespaces("Dependency Name:", "Dependency Name")
-        description = manifest_hash[:platform] == :android ? "e.g. 1.0, 4.8+, etc." : "e.g. ~> 1.0, >= 3.0, :path => 'path/to/dependency', etc."
-        parameters = Question.ask_base("Dependency Parameters: (#{description})")
-        dependency[name] = parameters
-        manifest_hash[:extra_dependencies].push(dependency)
-        color "#{name} dependency added!", :green
-      end
-
-      manifest_hash[:npm_dependencies] = ask "[?] NPM dependencies: (e.g. module@0.38.0 or blank line to continue)" do |q|
-        q.gather = ""
-      end
-
-      if manifest_hash[:platform] == :android
-        manifest_hash[:api][:react_packages] = ask "[?] React Packages: (or blank line to quit)" do |q|
-          q.gather = ""
-        end
-      end
-    end
-
-    say "Custom configuration fields: \n"
-    add_custom_fields = agree "[?] Wanna add custom fields? "
-
-    if add_custom_fields
-      manifest_hash[:custom_configuration_fields] = []
-
-      custom_fields_count = ask("[?] How many? ", Integer) { |q| q.in = 1..10 }
-
-      custom_fields_count.times do |index|
-        field_hash = {}
-        color "Custom field #{index + 1}", :yellow
-        color "---------------------", :yellow
-
-        input_type_index = Ask.list "[?] Input field type", ManifestHelpers::INPUT_FIELD_TYPES
-        field_hash[:type] = ManifestHelpers::INPUT_FIELD_TYPES[input_type_index]
-
-        field_hash[:key] = Question.ask_non_whitespaces("What is the key for this field?", "Custom key")
-
-        if field_hash[:type] == :dropdown
-            field_hash[:multiple] = agree "[?] Multiple select?"
-            field_hash[:options] = ask "[?] Enter dropdown options (or blank line to quit)" do |q|
-              q.gather = ""
-            end
-        end
-
-        case field_hash[:type]
-        when :dropdown
-          if field_hash[:multiple]
-            booleans_array = Ask.checkbox "[?] Select defaults", field_hash[:options] + ["No Default"]
-            default_indices = booleans_array.each_index.select { |i| booleans_array[i] == true }
-            values = field_hash[:options].values_at(*default_indices)
-            default = values.include?("No Default") ? "" : values
-          else
-            default_index = Ask.list "[?] Select default", field_hash[:options] + ["No Default"]
-            value = field_hash[:options][default_index]
-            default = value == "No Default" ? "" : value
-          end
-        when :checkbox
-          default =  Ask.list "[?] Select default", %w(0 1)
-        when :tags
-          default = Question.ask_base "Default values: (comma seperated)"
-          default.gsub!(" ", "")
-        else
-          default = Question.ask_base "What is the default value?"
-        end
-
-        field_hash[:default] = default unless default.to_s.empty?
-
-        manifest_hash[:custom_configuration_fields].push(field_hash)
-        color "Custom field #{index + 1} added!", :green
-      end
-    end
-
-    File.open("plugin-manifest.json", "w") do |file|
-      file.write(JSON.pretty_generate(manifest_hash))
-    end
-
-    color "plugin-manifest.json file created!", :green
+    color(
+      "#{'🔥'.encode('utf-8')} #{'🔥'.encode('utf-8')} #{'🔥'.encode('utf-8')}  plugin-manifest.json file created!",
+      :green,
+    )
   end
 end
 
