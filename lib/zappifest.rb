@@ -5,7 +5,6 @@ require 'uri'
 require 'inquirer'
 require 'net/http'
 require 'diffy'
-require 'pry'
 require 'terminal-table'
 
 require_relative 'version'
