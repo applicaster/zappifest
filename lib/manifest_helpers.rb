@@ -11,6 +11,8 @@ module ManifestHelpers
     "platform",
     "dependency_repository_url",
     "min_zapp_sdk",
+    "deprecated_since_zapp_sdk",
+    "unsupported_since_zapp_sdk",
     "dependency_name",
     "dependency_version",
     "custom_configuration_fields",

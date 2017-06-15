@@ -40,6 +40,11 @@ module DataSourceProviderQuestionsHelper
       "documentation input description",
     )
 
+    type_hash[:documentation][:input_placeholder] = Question.ask_non_empty(
+      "Input text placeholder: (This text will be presented as placeholder text in the input field, e.g. \"Please type Collection URL\")",
+      "documentation input placeholder text",
+    )
+
     type_hash[:documentation][:input_description_image_url] = Question.ask_base("Input info screenshot URL: (Optional, Screenshot URL that provides further info for the requested input)")
     type_hash
   end
