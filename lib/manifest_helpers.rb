@@ -20,6 +20,7 @@ module ManifestHelpers
     "extra_dependencies",
     "npm_dependencies",
     "whitelisted_account_ids",
+    "scheme",
     "data_types",
   ]
 

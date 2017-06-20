@@ -2,6 +2,12 @@ module DataSourceProviderQuestionsHelper
   module_function
 
   def ask_data_provider_questions(manifest_hash)
+    manifest_hash[:scheme] = ask("Provider's scheme: (It will identify the URL to be routed to your provider)") do |q|
+      q.validate = /^[a-zA-Z0-9]+$/
+      q.responses[:not_valid] = "cannot contain special characters"
+    end
+
+
     manifest_hash[:data_types] = []
     say "Data Types: \n"
 
