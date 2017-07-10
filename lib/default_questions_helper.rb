@@ -44,7 +44,7 @@ module DefaultQuestionsHelper
 
     manifest_hash[:min_zapp_sdk] = Question.ask_non_empty("Min Zapp SDK:", "Minimum supported SDK version")
     manifest_hash[:deprecated_since_zapp_sdk] = Question.ask_base("Deprecated since Zapp SDK version:")
-    manifest_hash[:unsupported_since_zapp_sdk] = Question.ask_base("Unspported since Zapp SDK:")
+    manifest_hash[:unsupported_since_zapp_sdk] = Question.ask_base("Unsupported since Zapp SDK:")
 
     manifest_hash
   end
