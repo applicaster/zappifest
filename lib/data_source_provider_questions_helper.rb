@@ -26,7 +26,7 @@ module DataSourceProviderQuestionsHelper
     type_hash = {}
 
     type_hash[:label] = Question.ask_non_empty(
-      "Type label: (Will be presented as #{plugin_name}_<label> in the populated dropdown in the feed manager page)",
+      "Type label: (Will be presented as \"#{plugin_name}_<label>\" in the populated dropdown in the feed manager page)",
       "label",
     )
 
