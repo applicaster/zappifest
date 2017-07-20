@@ -90,10 +90,18 @@ command :publish do |c|
     end
 
     manifest = JSON.parse(File.open(options.manifest).read)
-    diff_keys = manifest.keys - ManifestHelpers::WHITELIST_KEYS
+    ManifestHelpers.ensure_whitelisted_accounts(manifest)
+
+    diff_keys = manifest.keys - ManifestHelpers.whitelisted_keys
+    missing_keys = ManifestHelpers::MANDATORY_KEYS - manifest.keys
 
     if diff_keys.any?
       color "Manifest contains unpermitted keys: #{diff_keys.to_s}", :red
+      exit
+    end
+
+    if missing_keys.any?
+      color "Manifest missing mandatory keys: #{missing_keys.to_s}", :red
       exit
     end
 
@@ -105,12 +113,17 @@ command :publish do |c|
 
     begin
       if options.plugin_id
-        color "Showing diff...", :green
         new_manifest = JSON.parse(File.open(options.manifest).read)
 
-        current_manifest = JSON.parse(
-          NetworkHelpers.get_current_manifest(new_manifest["name"], options.plugin_id).body
-        )
+        current_manifest_response =
+          NetworkHelpers.get_current_manifest(new_manifest["name"], options.plugin_id)
+
+        if current_manifest_response.code.to_i > 400
+          color "Failed to update plugin. Check if ID ('#{options.plugin_id}') exists", :red
+          exit
+        end
+
+        current_manifest = JSON.parse(current_manifest_response.body)
 
         diff = Diffy::SplitDiff.new(
           JSON.pretty_generate(current_manifest), JSON.pretty_generate(new_manifest),
@@ -123,6 +136,7 @@ command :publish do |c|
           t.add_row [diff.left, diff.right]
         end
 
+        color "Showing diff...", :green
         puts table
 
         if agree "Are you sure? (This will override an existing plugin)"

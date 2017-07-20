@@ -64,6 +64,7 @@ module NetworkHelpers
       params["plugin[platform]"] = manifest_data["platform"]
       params["plugin[scheme]"] = manifest_data["scheme"]
       params["plugin[whitelisted_account_ids][]"] = manifest_data["whitelisted_account_ids"]
+      params["plugin[manifest_data]"] = manifest_data.to_json
     end
   end
 end

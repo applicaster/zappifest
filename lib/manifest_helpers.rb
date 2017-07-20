@@ -1,6 +1,5 @@
 module ManifestHelpers
-  WHITELIST_KEYS = [
-    "api",
+  MANDATORY_KEYS = [
     "author_name",
     "author_email",
     "manifest_version",
@@ -8,18 +7,22 @@ module ManifestHelpers
     "description",
     "identifier",
     "type",
-    "platform",
-    "dependency_repository_url",
     "min_zapp_sdk",
-    "deprecated_since_zapp_sdk",
-    "unsupported_since_zapp_sdk",
     "dependency_name",
     "dependency_version",
+    "whitelisted_account_ids",
+  ]
+
+  OPTIONAL_KEYS = [
+    "api",
+    "platform",
+    "dependency_repository_url",
+    "deprecated_since_zapp_sdk",
+    "unsupported_since_zapp_sdk",
     "custom_configuration_fields",
     "react_native",
     "extra_dependencies",
     "npm_dependencies",
-    "whitelisted_account_ids",
     "scheme",
     "data_types",
   ]
@@ -53,5 +56,14 @@ module ManifestHelpers
     File.open("plugin-manifest.json", "w") do |file|
       file.write(JSON.pretty_generate(manifest_hash))
     end
+  end
+
+  def ensure_whitelisted_accounts(manifest_hash)
+    return if manifest_hash.keys.include?("whitelisted_account_ids")
+    manifest_hash["whitelisted_account_ids"] = []
+  end
+
+  def whitelisted_keys
+    MANDATORY_KEYS + OPTIONAL_KEYS
   end
 end
