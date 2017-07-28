@@ -25,6 +25,8 @@ module CustomFieldsQuestionsHelper
     field_hash[:type] = ManifestHelpers::INPUT_FIELD_TYPES[input_type_index]
 
     field_hash[:key] = Question.ask_non_whitespaces("What is the key for this field?", "Custom key")
+    field_hash[:tooltip_text] = Question
+      .required_with_min_length("Enter a text the UI tooltip in Zapp", "Tooltip text", 10)
 
     if field_hash[:type] == :dropdown
       field_hash[:multiple] = agree "[?] Multiple select?"
