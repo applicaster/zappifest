@@ -4,6 +4,10 @@ module ReactNativeQuestionsHelper
   def ask_for_react_native(manifest_hash)
     manifest_hash[:react_native] = agree "[?] React Native plugin? (Y/n)"
     return manifest_hash unless manifest_hash[:react_native]
+    
+    react_bundle_url = Question.ask_non_whitespaces("[?] React bundle Url: ", String)
+    manifest_hash[:react_bundle_url] = react_bundle_url
+
     manifest_hash[:extra_dependencies] = []
 
     extra_dependencies_count = ask("[?] Number of extra dependencies: ", Integer) { |q| q.in = 0..10 }
