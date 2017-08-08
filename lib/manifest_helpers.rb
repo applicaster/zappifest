@@ -25,6 +25,7 @@ module ManifestHelpers
     "npm_dependencies",
     "scheme",
     "data_types",
+    "react_bundle_url",
   ]
 
   Types = [
