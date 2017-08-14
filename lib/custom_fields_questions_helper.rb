@@ -25,8 +25,19 @@ module CustomFieldsQuestionsHelper
     field_hash[:type] = ManifestHelpers::INPUT_FIELD_TYPES[input_type_index]
 
     field_hash[:key] = Question.ask_non_whitespaces("What is the key for this field?", "Custom key")
-    field_hash[:tooltip_text] = Question
-      .required_with_min_length("Enter a text the UI tooltip in Zapp", "Tooltip text", 10)
+    tooltip_type_selection = Question.multiple_option_question(
+      "[?] What type of tooltip would you like to display for this field",
+      ManifestHelpers::TOOLTIP_TYPES.map{ |t| t[:value] }
+    )
+
+    field_hash[:tooltip_type] = ManifestHelpers::TOOLTIP_TYPES[tooltip_type_selection][:type]
+
+    field_hash[:tooltip_text] =
+      if field_hash[:tooltip_type] == :plain
+        Question.required_with_min_length("Enter the tooltip value to be displayed in the Zapp UI", "Tooltip text", 10)
+      else
+        Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
+      end
 
     if field_hash[:type] == :dropdown
       field_hash[:multiple] = agree "[?] Multiple select?"
