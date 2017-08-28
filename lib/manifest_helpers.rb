@@ -52,7 +52,8 @@ module ManifestHelpers
 
   TOOLTIP_TYPES = [
     { type: :plain, value: "Plain text"},
-    { type: :url, value: "A link to an external resource"}
+    { type: :url, value: "A link to an external resource"},
+    { type: :mixed, value: "Text with a link to an external resource"}
   ].freeze
 
   module_function

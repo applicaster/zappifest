@@ -30,13 +30,19 @@ module CustomFieldsQuestionsHelper
       ManifestHelpers::TOOLTIP_TYPES.map{ |t| t[:value] }
     )
 
-    field_hash[:tooltip_type] = ManifestHelpers::TOOLTIP_TYPES[tooltip_type_selection][:type]
+    tooltip_type = ManifestHelpers::TOOLTIP_TYPES[tooltip_type_selection][:type]
 
     field_hash[:tooltip_text] =
-      if field_hash[:tooltip_type] == :plain
+      case tooltip_type
+      when :plain
         Question.required_with_min_length("Enter the tooltip value to be displayed in the Zapp UI", "Tooltip text", 10)
-      else
-        Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
+      when :url
+        url = Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
+        "You can read more about it <a href=#{url} target=_blank>here</a>"
+      when :mixed
+        text = Question.ask_base("Enter the tooltip value to be displayed in the Zapp UI")
+        url = Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
+        "#{text}. You can read more about it <a href=#{url} target=_blank>here</a>"
       end
 
     if field_hash[:type] == :dropdown
