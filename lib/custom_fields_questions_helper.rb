@@ -35,14 +35,14 @@ module CustomFieldsQuestionsHelper
     field_hash[:tooltip_text] =
       case tooltip_type
       when :plain
-        Question.required_with_min_length("Enter the tooltip value to be displayed in the Zapp UI", "Tooltip text", 10)
+        Question.required_with_min_length("Enter the tooltip text to be displayed in the Zapp UI", "Tooltip text", 10)
       when :url
         url = Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
-        "You can read more about it <a href=#{url} target=_blank>here</a>"
+        "To learn about this field, click <a href=#{url} target=_blank>here</a>."
       when :mixed
-        text = Question.ask_base("Enter the tooltip value to be displayed in the Zapp UI")
+        text = Question.ask_base("Enter the tooltip text to be displayed in the Zapp UI")
         url = Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
-        "#{text}. You can read more about it <a href=#{url} target=_blank>here</a>"
+        "#{text}. \nTo learn more about it, click <a href=#{url} target=_blank>here</a>."
       end
 
     if field_hash[:type] == :dropdown
