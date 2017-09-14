@@ -51,6 +51,12 @@ module ManifestHelpers
 
   INPUT_FIELD_TYPES = %i(text checkbox textarea dropdown tags colorpicker)
 
+  TOOLTIP_TYPES = [
+    { type: :plain, value: "Plain text"},
+    { type: :url, value: "A link to an external resource"},
+    { type: :mixed, value: "Text with a link to an external resource"}
+  ].freeze
+
   module_function
 
   def create_file(manifest_hash)

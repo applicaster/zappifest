@@ -16,6 +16,26 @@ module Question
   end
 
   def ask_base(question)
-    ask("[?] #{question}")
+    ask("[?] #{question}") do |q|
+      yield(q) if block_given?
+    end
+  end
+
+  def multiple_option_question(question, answer_options)
+    Ask.list(question, answer_options)
+  end
+
+  def required_with_min_length(question, field_name, min_length = 10)
+    ask_base(question) do |q|
+      q.validate = /.{#{min_length},}/
+      q.responses[:not_valid] = "#{field_name} must have a minimum length of #{min_length}."
+    end
+  end
+
+  def required_with_url_validation(question, field_name)
+    ask_base(question) do |q|
+      q.validate = /^(http|https):\/\/|[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/
+      q.responses[:not_valid] = "#{field_name} must be a valid URL. (i.e http://www.a-domain.com/some-resource)"
+    end
   end
 end

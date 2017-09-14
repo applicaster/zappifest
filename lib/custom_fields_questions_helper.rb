@@ -25,6 +25,25 @@ module CustomFieldsQuestionsHelper
     field_hash[:type] = ManifestHelpers::INPUT_FIELD_TYPES[input_type_index]
 
     field_hash[:key] = Question.ask_non_whitespaces("What is the key for this field?", "Custom key")
+    tooltip_type_selection = Question.multiple_option_question(
+      "[?] What type of tooltip would you like to display for this field",
+      ManifestHelpers::TOOLTIP_TYPES.map{ |t| t[:value] }
+    )
+
+    tooltip_type = ManifestHelpers::TOOLTIP_TYPES[tooltip_type_selection][:type]
+
+    field_hash[:tooltip_text] =
+      case tooltip_type
+      when :plain
+        Question.required_with_min_length("Enter the tooltip text to be displayed in the Zapp UI", "Tooltip text", 10)
+      when :url
+        url = Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
+        "To learn about this field, click <a href=#{url} target=_blank>here</a>."
+      when :mixed
+        text = Question.ask_base("Enter the tooltip text to be displayed in the Zapp UI")
+        url = Question.required_with_url_validation("Enter the URL to be displayed", "Tooltip URL")
+        "#{text}. \nTo learn more about it, click <a href=#{url} target=_blank>here</a>."
+      end
 
     if field_hash[:type] == :dropdown
       field_hash[:multiple] = agree "[?] Multiple select?"
