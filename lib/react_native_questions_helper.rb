@@ -1,3 +1,5 @@
+require_relative 'react_native_npm_questions_helper'
+
 module ReactNativeQuestionsHelper
   module_function
 
@@ -24,9 +26,7 @@ module ReactNativeQuestionsHelper
       color "#{name} dependency added!", :green
     end
 
-    manifest_hash[:npm_dependencies] = ask "[?] NPM dependencies: (e.g. module@0.38.0 or blank line to continue)" do |q|
-      q.gather = ""
-    end
+    ReactNativeNPMQuestionsHelper.ask_for_npm_dependencies(manifest_hash)
 
     if manifest_hash[:platform].to_s =~ /android/
       manifest_hash[:api][:react_packages] = ask "[?] React Packages: (or blank line to quit)" do |q|

@@ -22,6 +22,7 @@ module ManifestHelpers
     "custom_configuration_fields",
     "react_native",
     "extra_dependencies",
+    "project_dependencies",
     "npm_dependencies",
     "scheme",
     "data_types",
