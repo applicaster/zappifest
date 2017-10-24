@@ -14,7 +14,7 @@ module ApiQuestionsHelper
       manifest_hash[:api][:proguard_rules] = ask_editor(nil, "vim") if add_proguard_rules
 
     elsif manifest_hash[:platform].to_s =~ /ios/
-      manifest_hash[:api][:module_names] = ask "[?] Enter Swift module names the plugin should support (or blank line to quit)" do |q|
+      manifest_hash[:api][:modules] = ask "[?] Enter Swift module names the plugin should support (or blank line to quit)" do |q|
         q.gather = ""
       end
     end
