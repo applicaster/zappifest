@@ -45,5 +45,13 @@ Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json
 ### Overriding endpoint
 You can override the remote end point using `--override-url` <localhost:3000/api/v1/admin/plugins>
 
+### Contributing
+1. `git clone https://github.com/applicaster/zappifest.git`
+2. `cd zappifest`
+3. `bundle exec bundle install`
+4. `git checkout -b <your-branch>`
+5. Push branch to remote
+5. Create PR
+
 
 
