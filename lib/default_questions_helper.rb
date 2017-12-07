@@ -34,10 +34,12 @@ module DefaultQuestionsHelper
     end
 
     package_name = Question.ask_base("Package name:")
-    if !package_name.empty?
+
+    unless package_name.empty?
       manifest_hash[:dependency_name] = package_name
       manifest_hash[:dependency_version] = Question.ask_non_whitespaces("Package version:", "Package version")
     end
+
     manifest_hash[:whitelisted_account_ids] = []
 
     whitelisted_account_ids = Question.ask_base("Whitelisted account ids: (comma seperated, leave blank if no restrictions apply)")
