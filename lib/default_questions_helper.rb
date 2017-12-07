@@ -33,8 +33,11 @@ module DefaultQuestionsHelper
       ask_for_dependency_repository(manifest_hash)
     end
 
-    manifest_hash[:dependency_name] = Question.ask_non_whitespaces("Package name:", "Package name")
-    manifest_hash[:dependency_version] = Question.ask_non_whitespaces("Package version:", "Package version")
+    package_name = Question.ask_base("Package name:")
+    if !package_name.empty?
+      manifest_hash[:dependency_name] = package_name
+      manifest_hash[:dependency_version] = Question.ask_non_whitespaces("Package version:", "Package version")
+    end
     manifest_hash[:whitelisted_account_ids] = []
 
     whitelisted_account_ids = Question.ask_base("Whitelisted account ids: (comma seperated, leave blank if no restrictions apply)")
