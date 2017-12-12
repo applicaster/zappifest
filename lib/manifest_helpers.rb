@@ -8,14 +8,14 @@ module ManifestHelpers
     "identifier",
     "type",
     "min_zapp_sdk",
-    "dependency_name",
-    "dependency_version",
     "whitelisted_account_ids",
   ]
 
   OPTIONAL_KEYS = [
     "api",
     "platform",
+    "dependency_name",
+    "dependency_version",
     "dependency_repository_url",
     "deprecated_since_zapp_sdk",
     "unsupported_since_zapp_sdk",
