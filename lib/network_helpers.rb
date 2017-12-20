@@ -19,14 +19,14 @@ module NetworkHelpers
     end
   end
 
-  def get_current_manifest(plugin_identifier, plugin_id)
-    uri = URI.parse(ZAPP_URL)
+  def get_current_manifest(url, plugin_id, access_token)
+    uri = URI.parse(url.sub('plugin_versions', 'plugin_manifests'))
 
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
       connection.read_timeout = 10
 
       return connection.get(
-        "#{uri.path}/#{plugin_id}/plugin_manifests/#{plugin_identifier}",
+        "#{uri.path}/#{plugin_id}?access_token=#{access_token}"
       )
     end
   end

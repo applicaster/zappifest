@@ -116,7 +116,7 @@ command :publish do |c|
         new_manifest = JSON.parse(File.open(options.manifest).read)
 
         current_manifest_response =
-          NetworkHelpers.get_current_manifest(new_manifest["identifier"], options.plugin_id)
+          NetworkHelpers.get_current_manifest(url, options.plugin_id, params["access_token"])
 
         if current_manifest_response.code.to_i > 400
           color "Failed to update plugin. Check if ID ('#{options.plugin_id}') exists", :red
