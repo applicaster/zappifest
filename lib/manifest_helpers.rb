@@ -33,6 +33,7 @@ module ManifestHelpers
     { label: "Player", value: "player", platform_required: true },
     { label: "Navigation", value: "menu", platform_required: true },
     { label: "Analytics Provider", value: "analytics", platform_required: true },
+    { label: "Advertisement", value: "advertisement", platform_required: true },
     { label: "Payments", value: "payments" },
     { label: "Authentication", value: "auth_provider", platform_required: true },
     { label: "Push Provider", value: "push_provider", platform_required: true },
