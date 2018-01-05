@@ -17,6 +17,8 @@ require_relative 'api_questions_helper'
 require_relative 'custom_fields_questions_helper'
 require_relative 'data_source_provider_questions_helper'
 require_relative 'question'
+require_relative 'plugin_version'
+require_relative 'plugin'
 
 program :name, 'Zappifest'
 program :version, VERSION
@@ -89,11 +91,14 @@ command :publish do |c|
       end
     end
 
-    manifest = JSON.parse(File.open(options.manifest).read)
-    ManifestHelpers.ensure_whitelisted_accounts(manifest)
+    color "Gathering plugin information...", :green
 
-    diff_keys = manifest.keys - ManifestHelpers.whitelisted_keys
-    missing_keys = ManifestHelpers::MANDATORY_KEYS - manifest.keys
+    plugin_version = PluginVersion.new(options)
+
+    ManifestHelpers.ensure_whitelisted_accounts(plugin_version.manifest)
+
+    diff_keys = plugin_version.manifest.keys - ManifestHelpers.whitelisted_keys
+    missing_keys = ManifestHelpers::MANDATORY_KEYS - plugin_version.manifest.keys
 
     if diff_keys.any?
       color "Manifest contains unpermitted keys: #{diff_keys.to_s}", :red
@@ -105,48 +110,11 @@ command :publish do |c|
       exit
     end
 
-    url = options.override_url || NetworkHelpers::ZAPP_URL
-    params = NetworkHelpers.set_request_params(options)
-    mp = Multipart::MultipartPost.new
-    query, headers = mp.prepare_query(params)
-    headers.merge!({"User-Agent" => "Zappifest/#{VERSION}"})
-
     begin
-      if options.plugin_id
-        new_manifest = JSON.parse(File.open(options.manifest).read)
+      color "Publishing your plugin, this will only take a few moments...", :green
+      plugin_version.show_diff if plugin_version.id
+      response = plugin_version.publish
 
-        current_manifest_response =
-          NetworkHelpers.get_current_manifest(url, options.plugin_id, params["access_token"])
-
-        if current_manifest_response.code.to_i > 400
-          color "Failed to update plugin. Check if ID ('#{options.plugin_id}') exists", :red
-          exit
-        end
-
-        current_manifest = JSON.parse(current_manifest_response.body)
-
-        diff = Diffy::SplitDiff.new(
-          JSON.pretty_generate(current_manifest), JSON.pretty_generate(new_manifest),
-          format: :color
-        )
-
-        table = Terminal::Table.new do |t|
-          t << ["Remote Manifest", "Local Manifset"]
-          t << :separator
-          t.add_row [diff.left, diff.right]
-        end
-
-        color "Showing diff...", :green
-        puts table
-
-        if agree "Are you sure? (This will override an existing plugin)"
-          response = NetworkHelpers.put_request("#{url}/#{options.plugin_id}", query, headers)
-        else
-          abort
-        end
-      else
-        response = NetworkHelpers.post_request(url, query, headers)
-      end
     rescue => error
       color "Failed with the following error: #{error.message}", :red
     end
