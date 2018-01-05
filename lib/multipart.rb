@@ -36,7 +36,10 @@ module Multipart
 
   class MultipartPost
     BOUNDARY = "tarsiers-rule0000"
-    HEADER = { "Content-type" => "multipart/form-data, boundary=" + BOUNDARY + " " }
+    HEADER = {
+      "Content-type" => "multipart/form-data, boundary=" + BOUNDARY + " ",
+      "User-Agent" => "Zappifest/#{VERSION}",
+    }
 
     def prepare_query(params)
       normalized_params = params.each_with_object([]) do |(key, value), result|
