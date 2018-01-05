@@ -13,17 +13,12 @@ module NetworkHelpers
     end
 
     def do_request(method)
-      @method = method
-
       Net::HTTP.start(@uri.host, @uri.port, use_ssl: use_ssl?) do |connection|
         connection.read_timeout = 20
         @response = connection.send(method, request_url, *request_params)
         handle_response
         self
       end
-
-    rescue JSON::ParserError => error
-      color "Couldn't parse JSON response: #{error}", :red
     end
 
     private
@@ -54,6 +49,9 @@ module NetworkHelpers
         color "An Error occured : #{@response.body}", :red
         exit
       end
+
+    rescue JSON::ParserError => error
+      color "Couldn't parse JSON response: #{error}", :red
     end
   end
 
