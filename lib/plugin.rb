@@ -23,8 +23,7 @@ class Plugin < PluginBase
   def zapp_plugin
     get_request(plugins_url, request_params)
       .body
-      .select { |p| p["name"] == @name || p["external_identifier"] == @identifier }
-      .first
+      .find { |p| p["name"] == @name || p["external_identifier"] == @identifier }
   end
 
   def request_params
