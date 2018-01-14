@@ -15,6 +15,7 @@ module NetworkHelpers
     def do_request(method)
       Net::HTTP.start(@uri.host, @uri.port, use_ssl: use_ssl?) do |connection|
         connection.read_timeout = 20
+        @method = method
         @response = connection.send(method, request_url, *request_params)
         handle_response
         self
