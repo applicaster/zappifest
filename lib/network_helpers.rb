@@ -1,69 +1,84 @@
 module NetworkHelpers
   require 'net/http'
 
-  ZAPP_URL = "https://zapp.applicaster.com/api/v1/admin/plugin_versions"
-  PLUGINS_URL = "https://zapp.applicaster.com/admin/plugin_versions"
+  ZAPP_URL = "https://zapp.applicaster/com/api/v1/admin"
   ACCOUNTS_URL = "https://accounts.applicaster.com/api/v1"
+
+  class Request
+    attr_accessor :response, :body
+
+    def initialize(uri, params)
+      @uri = uri
+      @params = params
+    end
+
+    def do_request(method)
+      Net::HTTP.start(@uri.host, @uri.port, use_ssl: use_ssl?) do |connection|
+        connection.read_timeout = 20
+        @method = method
+        @response = connection.send(method, request_url, *request_params)
+        handle_response
+        self
+      end
+    end
+
+    private
+
+    def request_url
+      return @uri.path unless @method == :get
+      "#{@uri.path}?access_token=#{@params["access_token"]}"
+    end
+
+    def request_params
+      return nil if @method == :get
+      Multipart::MultipartPost.new.prepare_query(@params)
+    end
+
+    def use_ssl?
+      @uri.scheme == "https"
+    end
+
+    def handle_response
+      case @response
+      when Net::HTTPOK
+        @body = JSON.parse(response.body)
+      when Net::HTTPInternalServerError
+        color "Request failed: Internal Server Error", :red
+        exit
+      when Net::HTTPNotFound
+      else
+        color "An Error occured : #{@response.body}", :red
+        exit
+      end
+
+    rescue JSON::ParserError => error
+      color "Couldn't parse JSON response: #{error}", :red
+    end
+  end
 
   module_function
 
   def validate_accounts_token(options)
     uri = URI.parse(ACCOUNTS_URL)
 
-    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
-      connection.read_timeout = 10
-
-      return connection.get(
-        "#{uri.path}/users/current.json?access_token=#{options.access_token}",
-      )
-    end
+    Request
+      .new(uri, { "access_token" => options.access_token })
+      .do_request(:get)
+      .response
   end
 
-  def get_current_manifest(url, plugin_id, access_token)
-    uri = URI.parse(url.sub('plugin_versions', 'plugin_manifests'))
-
-    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
-      connection.read_timeout = 10
-
-      return connection.get(
-        "#{uri.path}/#{plugin_id}?access_token=#{access_token}"
-      )
-    end
+  def respond_to_missing?(method_name, include_private = false)
+    %w(get_request put_request post_request).include?(method_name)
   end
 
-  def post_request(url, query, headers)
-    uri = URI.parse(url)
-
-    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
-      connection.read_timeout = 10
-      return connection.post(uri.path, query, headers)
-    end
-  end
-
-  def put_request(url, query, headers)
-    uri = URI.parse(url)
-
-    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |connection|
-      connection.read_timeout = 10
-      return connection.put(uri.path, query, headers)
-    end
-  end
-
-  def set_request_params(options)
-    manifest_file = File.open(options.manifest)
-    manifest_data = JSON.parse(File.read(manifest_file))
-
-    {}.tap do |params|
-      params["access_token"] = options.access_token
-      params["plugin_version[manifest]"] = manifest_data.to_json
-      params["plugin_version[name]"] = manifest_data['name']
-      params["plugin_version[author_email]"] = manifest_data["author_email"]
-      params["plugin_version[category]"] = manifest_data["type"]
-      params["plugin_version[identifier]"] = manifest_data["identifier"]
-      params["plugin_version[version]"] = manifest_data["manifest_version"]
-      params["plugin_version[platform]"] = manifest_data["platform"]
-      params["plugin_version[scheme]"] = manifest_data["scheme"]
-      params["plugin_version[whitelisted_account_ids][]"] = manifest_data["whitelisted_account_ids"]
+  def method_missing(method_name, *args, &block)
+    if [:get_request, :put_request, :post_request].include?(method_name)
+      url, params = args
+      uri = URI.parse(url)
+      request_method = method_name.to_s.gsub(/_request/, '').to_sym
+      Request.new(uri, params).do_request(request_method)
+    else
+      super
     end
   end
 end
