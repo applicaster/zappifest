@@ -1,7 +1,7 @@
 module NetworkHelpers
   require 'net/http'
 
-  ZAPP_URL = "https://zapp.applicaster/com/api/v1/admin"
+  ZAPP_URL = "https://zapp.applicaster.com/com/api/v1/admin"
   ACCOUNTS_URL = "https://accounts.applicaster.com/api/v1"
 
   class Request
@@ -59,7 +59,7 @@ module NetworkHelpers
   module_function
 
   def validate_accounts_token(options)
-    uri = URI.parse(ACCOUNTS_URL)
+    uri = URI.parse("#{ACCOUNTS_URL}/users/current.json")
 
     Request
       .new(uri, { "access_token" => options.access_token })
