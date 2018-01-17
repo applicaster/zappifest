@@ -88,6 +88,7 @@ command :publish do |c|
         exit
       else
         color "Cannot validate token, please try later.", :red
+        exit
       end
     end
 
