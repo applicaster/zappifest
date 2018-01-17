@@ -78,6 +78,7 @@ command :publish do |c|
         accounts_response = NetworkHelpers.validate_accounts_token(options)
       rescue => error
         color "Cannot validate Token. Request failed: #{error}", :red
+        exit
       end
 
       case accounts_response
