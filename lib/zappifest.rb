@@ -78,7 +78,6 @@ command :publish do |c|
   c.action do |args, options|
 
     VersionHelper::check_version
-    exit
 
     unless options.override_url
       begin
