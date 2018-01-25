@@ -31,7 +31,7 @@ command :init do |c|
   c.description = 'Initialize plugin-manifest.json'
   c.action do |args, options|
 
-    VersionHelper::check_version
+    VersionHelper.new(options).check_version
 
     color(
       "      '########::::'###::::'########::'########::'####:'########:'########::'######::'########:
@@ -77,7 +77,7 @@ command :publish do |c|
   c.option '--override-url URL', String, 'alternate url'
   c.action do |args, options|
 
-    VersionHelper::check_version
+    VersionHelper.new(c).check_version
 
     unless options.override_url
       begin

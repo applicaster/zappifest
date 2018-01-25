@@ -1,17 +1,27 @@
-module VersionHelper
+class VersionHelper
   require 'Versionomy'
 
-  module_function
+  def initialize(command)
+    @command = command
+  end
 
   def check_version
-    latest_zappifest_stable = parse_latest_zappifest_version_from_brew(`brew info zappifest`)
+    color "Checking for zappifest update...", :green
+    latest_zappifest_stable = parse_latest_zappifest_version(`brew info zappifest`)
     prompt_for_update(latest_zappifest_stable) if update_required?(latest_zappifest_stable)
   rescue
     puts "Failed to check zappifest update - please check manually by running `brew info zappifest`"
   end
 
+  private
+
   def prompt_for_update(version)
-    update_zappifest if agree update_message(version)
+    if agree update_message(version)
+      update_zappifest
+    elsif @command.name == "publish"
+      puts "You need to update to the latest version in order to publish"
+      exit
+    end
   end
 
   def update_required?(latest_zappifest_stable)
@@ -22,7 +32,7 @@ module VersionHelper
     "A new zappifest version is available (#{version}). Do you want to upgrade ? (yes/no)"
   end
 
-  def parse_latest_zappifest_version_from_brew(cmd)
+  def parse_latest_zappifest_version(cmd)
     cmd.split("\n")[0].split(" ")[-1]
   end
 
