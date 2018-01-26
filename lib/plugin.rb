@@ -1,6 +1,8 @@
 require_relative 'plugin_base'
 
 class Plugin < PluginBase
+  include Question
+
   def initialize(options)
     super(options)
     @existing_plugin = zapp_plugin
@@ -21,18 +23,32 @@ class Plugin < PluginBase
   private
 
   def zapp_plugin
-    get_request(plugins_url, request_params)
+    plugin_candidates = get_request(plugins_url, request_params)
       .body
-      .find { |p| p["name"] == @name || p["external_identifier"] == @identifier }
+      .select do |p|
+        p["name"] == @name || identifier_matches?(p)
+      end
+
+    return nil if plugin_candidates.count == 0
+    return plugin_candidates.first if plugin_candidates.count == 1
+
+    plugin_identifiers = plugin_candidates.map { |p| p["external_identifier"] }
+    identifier_index = multiple_option_question("Please select your plugin :", plugin_identifiers)
+    plugin_candidates[identifier_index]
+  end
+
+  def identifier_matches?(plugin)
+    shortened_identifier = format_identifier(@identifier)
+    plugin["external_identifier"] == @identifier || plugin["external_identifier"] == shortened_identifier
   end
 
   def request_params
     {}.tap do |params|
       params["id"] = @id unless @id.nil?
       params["access_token"] = @access_token
-      params["plugin[name]"] = @manifest["name"]
+      params["plugin[name]"] = @name
       params["plugin[category]"] = @manifest["type"]
-      params["plugin[external_identifier]"] = @manifest["identifier"]
+      params["plugin[external_identifier]"] = @identifier
       params["plugin[whitelisted_account_ids][]"] = @manifest["whitelisted_account_ids"]
     end
   end
