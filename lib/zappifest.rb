@@ -19,6 +19,7 @@ require_relative 'data_source_provider_questions_helper'
 require_relative 'question'
 require_relative 'plugin_version'
 require_relative 'plugin'
+require_relative 'version_helper'
 
 program :name, 'Zappifest'
 program :version, VERSION
@@ -29,6 +30,8 @@ command :init do |c|
   c.summary = 'Initialize plugin-manifest.json'
   c.description = 'Initialize plugin-manifest.json'
   c.action do |args, options|
+
+    VersionHelper.new(options).check_version
 
     color(
       "      '########::::'###::::'########::'########::'####:'########:'########::'######::'########:
@@ -73,6 +76,9 @@ command :publish do |c|
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.option '--override-url URL', String, 'alternate url'
   c.action do |args, options|
+
+    VersionHelper.new(c).check_version
+
     unless options.override_url
       begin
         accounts_response = NetworkHelpers.validate_accounts_token(options)

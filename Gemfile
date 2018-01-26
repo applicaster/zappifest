@@ -9,3 +9,4 @@ gem 'diffy'
 gem 'colorize'
 gem 'terminal-table'
 gem 'rubocop', '~> 0.41.1', require: false
+gem 'versionomy'
