@@ -6,6 +6,8 @@ class Plugin < PluginBase
   def initialize(options)
     super(options)
     @existing_plugin = zapp_plugin
+    puts zapp_plugin
+    exit
     @id = @existing_plugin["id"] unless @existing_plugin.nil?
   end
 
@@ -29,12 +31,16 @@ class Plugin < PluginBase
         p["name"] == @name || identifier_matches?(p)
       end
 
-    return nil if plugin_candidates.count == 0
-    return plugin_candidates.first if plugin_candidates.count == 1
-
-    plugin_identifiers = plugin_candidates.map { |p| p["external_identifier"] }
-    identifier_index = multiple_option_question("Please select your plugin :", plugin_identifiers)
-    plugin_candidates[identifier_index]
+    case plugin_candidates.count
+    when 0
+      nil
+    when 1
+      plugin_candidates.first
+    else
+      plugin_identifiers = plugin_candidates.map { |p| p["external_identifier"] }
+      identifier_index = multiple_option_question("Please select your plugin :", plugin_identifiers)
+      plugin_candidates[identifier_index]
+    end
   end
 
   def identifier_matches?(plugin)

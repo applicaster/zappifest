@@ -72,9 +72,14 @@ class PluginVersion < PluginBase
       params["plugin_version[manifest]"] = @manifest.to_json
       params["plugin_version[author_email]"] = @manifest["author_email"]
       params["plugin_version[version]"] = @manifest["manifest_version"]
-      params["plugin_version[platform]"] = @manifest["platform"] || nil
+      params["plugin_version[platform]"] = platform
       params["plugin_version[scheme]"] = @manifest["scheme"]
       params["plugin_version[whitelisted_account_ids][]"] = @manifest["whitelisted_account_ids"]
     end
+  end
+
+  def platform
+    return if @manifest["platform"] == ""
+    @manifest["platform"]
   end
 end
