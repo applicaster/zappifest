@@ -6,8 +6,6 @@ class Plugin < PluginBase
   def initialize(options)
     super(options)
     @existing_plugin = zapp_plugin
-    puts zapp_plugin
-    exit
     @id = @existing_plugin["id"] unless @existing_plugin.nil?
   end
 
