@@ -79,7 +79,7 @@ class PluginVersion < PluginBase
   end
 
   def platform
-    return if @manifest["platform"] == ""
+    return if @manifest["platform"].empty?
     @manifest["platform"]
   end
 end
