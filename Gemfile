@@ -8,5 +8,5 @@ gem 'inquirer'
 gem 'diffy'
 gem 'colorize'
 gem 'terminal-table'
-gem 'rubocop', '~> 0.41.1', require: false
+gem 'rubocop', '~> 0.49.0', require: false
 gem 'versionomy'
