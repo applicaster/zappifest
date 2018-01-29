@@ -65,16 +65,12 @@ class PluginVersion < PluginBase
     {}.tap do |params|
       params["id"] = @id unless @id.nil?
       params["access_token"] = @access_token
-      params["plugin_version[name]"] = @name
-      params["plugin_version[identifier]"] = @identifier
-      params["plugin_version[category]"] = @manifest["type"]
       params["plugin_version[plugin_id]"] = @plugin.id
       params["plugin_version[manifest]"] = @manifest.to_json
       params["plugin_version[author_email]"] = @manifest["author_email"]
       params["plugin_version[version]"] = @manifest["manifest_version"]
       params["plugin_version[platform]"] = platform
       params["plugin_version[scheme]"] = @manifest["scheme"]
-      params["plugin_version[whitelisted_account_ids][]"] = @manifest["whitelisted_account_ids"]
     end
   end
 
