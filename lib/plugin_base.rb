@@ -6,7 +6,7 @@ class PluginBase
   def initialize(options)
     @manifest = get_manifest_data(options)
     @name = @manifest["name"]
-    @identifier = @manifest["identifier"]
+    @identifier = format_identifier(@manifest["identifier"])
     @base_url = options.override_url || NetworkHelpers::ZAPP_URL
     @access_token = options.access_token
   end
@@ -26,5 +26,9 @@ class PluginBase
   def get_manifest_data(options)
     manifest_file = File.open(options.manifest)
     JSON.parse(File.read(manifest_file))
+  end
+
+  def format_identifier(identifier)
+    identifier.gsub(/((_|-)(ios|android))/i, "")
   end
 end
