@@ -42,6 +42,7 @@ class PluginVersion < PluginBase
   end
 
   def publish
+    @plugin.find_zapp_plugin
     @id ? update : create
   end
 
