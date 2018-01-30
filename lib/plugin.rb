@@ -9,7 +9,7 @@ class Plugin < PluginBase
 
   def find_zapp_plugin
     @existing_plugin = zapp_plugin unless @create_new_plugin
-    @id = @existing_plugin["id"] unless @existing_plugin
+    @id = @existing_plugin["id"] unless @existing_plugin.nil?
   end
 
   def create
