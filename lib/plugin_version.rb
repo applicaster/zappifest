@@ -42,13 +42,14 @@ class PluginVersion < PluginBase
   end
 
   def publish
+    @plugin.find_zapp_plugin
     @id ? update : create
   end
 
   private
 
   def create
-    @plugin.create if @plugin.id.nil?
+    @plugin.create if @create_new_plugin
     post_request(plugin_versions_url, request_params).response
   end
 

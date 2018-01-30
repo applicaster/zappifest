@@ -4,6 +4,7 @@ class PluginBase
   attr_accessor :id, :name, :identifier
 
   def initialize(options)
+    @create_new_plugin = options.new
     @manifest = get_manifest_data(options)
     @name = @manifest["name"]
     @identifier = format_identifier(@manifest["identifier"])

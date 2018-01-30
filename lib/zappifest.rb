@@ -75,6 +75,7 @@ command :publish do |c|
   c.option '--manifest PATH', String, 'plugin-manifest.json path'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.option '--override-url URL', String, 'alternate url'
+  c.option '--new', String, 'use this option to publish a new plugin with a new identifier'
   c.action do |args, options|
 
     VersionHelper.new(c).check_version
