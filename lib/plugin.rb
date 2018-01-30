@@ -5,7 +5,7 @@ class Plugin < PluginBase
 
   def initialize(options)
     super(options)
-    @existing_plugin = zapp_plugin
+    @existing_plugin = zapp_plugin unless @create_new_plugin
     @id = @existing_plugin["id"] unless @existing_plugin.nil?
   end
 
@@ -31,7 +31,9 @@ class Plugin < PluginBase
 
     case plugin_candidates.count
     when 0
-      nil
+      color "No Plugin found matching #{@manifest["identifier"]}. please check the identifier and try again", :red
+      color "If you want to create a plugin with a new identifier, use the --new option (see zappifest publish --help)", :red
+      exit
     when 1
       plugin_candidates.first
     else
