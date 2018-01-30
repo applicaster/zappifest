@@ -5,8 +5,7 @@ class Plugin < PluginBase
 
   def initialize(options)
     super(options)
-    @existing_plugin = zapp_plugin unless @create_new_plugin
-    @id = @existing_plugin["id"] unless @existing_plugin.nil?
+    find_zapp_plugin
   end
 
   def create
@@ -21,6 +20,11 @@ class Plugin < PluginBase
   end
 
   private
+
+  def find_zapp_plugin
+    @existing_plugin = zapp_plugin unless @create_new_plugin
+    @id = @existing_plugin["id"] unless @existing_plugin.nil?
+  end
 
   def zapp_plugin
     plugin_candidates = get_request(plugins_url, request_params)
