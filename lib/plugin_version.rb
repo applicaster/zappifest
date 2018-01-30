@@ -5,6 +5,7 @@ class PluginVersion < PluginBase
 
   def initialize(options)
     super(options)
+    check_manifest_version_validity
     @id = options.plugin_id || nil
     @plugin = Plugin.new(options)
   end
@@ -59,6 +60,13 @@ class PluginVersion < PluginBase
       color "Plugin #{@manifest["name"]} not found, cannot proceed with update", :red
       exit
     end
+  end
+
+  def check_manifest_version_validity
+    Versionomy.parse(@manifest["manifest_version"])
+  rescue => error
+    color "Plugin version #{@manifest["manifest_version"]} is not valid", :red
+    exit
   end
 
   def request_params
