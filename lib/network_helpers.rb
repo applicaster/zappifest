@@ -59,6 +59,11 @@ module NetworkHelpers
   module_function
 
   def validate_accounts_token(options)
+    unless options.access_token
+      color "Access token is missing"
+      exit
+    end
+
     uri = URI.parse("#{ACCOUNTS_URL}/users/current.json")
 
     Request
