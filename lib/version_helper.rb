@@ -7,7 +7,8 @@ class VersionHelper
 
   def check_version
     color "Checking for zappifest update...", :green
-    @latest_zappifest_stable = `brew info zappifest`.split("\n")[0].split(" ")[-1]
+    zappifest_tap = `curl https://raw.githubusercontent.com/applicaster/homebrew-tap/master/zappifest.rb`
+    @latest_zappifest_stable = zappifest_tap.scan(/version \".+\"/).first.split(" ")[-1].delete("\"")
     prompt_for_update if update_required?
   rescue
     puts "Failed to check zappifest update - please check manually by running `brew info zappifest`"
