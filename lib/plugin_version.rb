@@ -49,7 +49,7 @@ class PluginVersion < PluginBase
   private
 
   def create
-    @plugin.create if @create_new_plugin
+    @create_new_plugin ? @plugin.create : @plugin.update
     post_request(plugin_versions_url, request_params).response
   end
 
