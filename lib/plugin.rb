@@ -72,7 +72,6 @@ class Plugin < PluginBase
     %w(
       name
       category
-      external_identifier
       whitelisted_account_ids
     )
   end
@@ -81,7 +80,6 @@ class Plugin < PluginBase
     %w(
       plugin[name]
       plugin[category]
-      plugin[external_identifier]
       plugin[whitelisted_account_ids][]
     )
   end
