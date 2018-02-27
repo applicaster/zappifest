@@ -27,6 +27,14 @@ module ManifestHelpers
     "scheme",
     "data_types",
     "react_bundle_url",
+    "thumbnail",
+    "screenshots",
+    "preview",
+    "general",
+    "assets",
+    "styles",
+    "rules",
+    "data",
   ]
 
   Types = [
