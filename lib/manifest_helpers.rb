@@ -40,6 +40,7 @@ module ManifestHelpers
   Types = [
     { label: "Player", value: "player", platform_required: true },
     { label: "Navigation", value: "menu", platform_required: true },
+    { label: "Navigation Bar", value: "nav_bar", platform_required: true },
     { label: "Analytics Provider", value: "analytics", platform_required: true },
     { label: "Article", value: "article", platform_required:true },
     { label: "Advertisement", value: "advertisement", platform_required: true },
