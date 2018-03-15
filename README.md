@@ -45,7 +45,7 @@ Check the plugin id on [Zapp](https://zapp.applicaster.com/admin/plugins) (under
 Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json-file> --access-token <zapp-access-token>`
 
 ### Overriding endpoint
-You can override the remote end point using `--override-url` <http://localhost:3000/api/v1/admin/plugins>
+You can override the remote end point using `--override-url` <http://localhost:4000/api/v1/admin>
 
 ### Contributing
 1. `git clone https://github.com/applicaster/zappifest.git`
