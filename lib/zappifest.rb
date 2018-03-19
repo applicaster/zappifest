@@ -16,6 +16,7 @@ require_relative 'react_native_questions_helper'
 require_relative 'api_questions_helper'
 require_relative 'custom_fields_questions_helper'
 require_relative 'data_source_provider_questions_helper'
+require_relative 'navigation_plugins_questions_helper'
 require_relative 'question'
 require_relative 'plugin_version'
 require_relative 'plugin'
@@ -53,6 +54,7 @@ command :init do |c|
     if manifest_hash[:type].to_s == "data_source_provider"
       DataSourceProviderQuestionsHelper.ask_data_provider_questions(manifest_hash)
     else
+      NavigationPluginsQuestionsHelper.ask_nav_items(manifest_hash)
       ApiQuestionsHelper.ask_for_api(manifest_hash)
       ReactNativeQuestionsHelper.ask_for_react_native(manifest_hash)
       CustomFieldsQuestionsHelper.ask_for_custom_fields(manifest_hash)
