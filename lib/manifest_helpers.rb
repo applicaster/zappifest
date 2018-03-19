@@ -35,6 +35,7 @@ module ManifestHelpers
     "styles",
     "rules",
     "data",
+    "supported_nav_items",
   ]
 
   Types = [
