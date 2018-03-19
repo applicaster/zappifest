@@ -52,5 +52,6 @@ You can override the remote end point using `--override-url` <localhost:3000/api
 2. `cd zappifest`
 3. `bundle exec bundle install`
 4. `git checkout -b <your-branch>`
-5. Push branch to remote
-5. Create PR
+5. Publish with your local changes `ruby lib/zappifest.rb publish ....`
+6. Push branch to remote
+7. Create PR
