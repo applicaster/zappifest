@@ -21,6 +21,20 @@ module Question
     end
   end
 
+  def ask_for_version(question)
+    ask_base(question) do |q|
+      q.validate = lambda { |version| valid_version?(version) }
+      q.responses[:not_valid] = "Version not valid"
+      q.default = "0.1.0"
+    end
+  end
+
+  def valid_version?(version)
+    return Versionomy.parse(version)
+  rescue Versionomy::Errors::VersionomyError
+    false
+  end
+
   def multiple_option_question(question, answer_options)
     Ask.list(question, answer_options)
   end

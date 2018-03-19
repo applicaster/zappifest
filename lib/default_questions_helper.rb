@@ -9,7 +9,7 @@ module DefaultQuestionsHelper
       q.responses[:not_valid] = "Should be a valid email."
     end
 
-    manifest_hash[:manifest_version] = ask("[?] Manifest version: ") { |q| q.default = "0.1.0" }
+    manifest_hash[:manifest_version] = Question.ask_for_version("Manifest version: ")
 
     manifest_hash[:name] = Question.ask_non_empty("Plugin Name:", "name")
     manifest_hash[:description] = Question.ask_non_empty("Plugin description:", "description")
@@ -37,7 +37,7 @@ module DefaultQuestionsHelper
 
     unless package_name.empty?
       manifest_hash[:dependency_name] = package_name
-      manifest_hash[:dependency_version] = Question.ask_non_whitespaces("Package version:", "Package version")
+      manifest_hash[:dependency_version] = Question.ask_for_version("Package version:")
     end
 
     manifest_hash[:whitelisted_account_ids] = []
@@ -47,9 +47,9 @@ module DefaultQuestionsHelper
     manifest_hash[:whitelisted_account_ids] = whitelisted_account_ids.gsub(" ","")
       .split(",") if whitelisted_account_ids
 
-    manifest_hash[:min_zapp_sdk] = Question.ask_non_empty("Min Zapp SDK:", "Minimum supported SDK version")
-    manifest_hash[:deprecated_since_zapp_sdk] = Question.ask_base("Deprecated since Zapp SDK version:")
-    manifest_hash[:unsupported_since_zapp_sdk] = Question.ask_base("Unsupported since Zapp SDK:")
+    manifest_hash[:min_zapp_sdk] = Question.ask_for_version("Min Zapp SDK:")
+    manifest_hash[:deprecated_since_zapp_sdk] = Question.ask_for_version("Deprecated since Zapp SDK version:")
+    manifest_hash[:unsupported_since_zapp_sdk] = Question.ask_for_version("Unsupported since Zapp SDK:")
 
     manifest_hash
   end
