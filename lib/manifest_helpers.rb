@@ -36,6 +36,7 @@ module ManifestHelpers
     "rules",
     "data",
     "supported_nav_items",
+    "max_nav_items",
     "zapp_configuration",
   ]
 
