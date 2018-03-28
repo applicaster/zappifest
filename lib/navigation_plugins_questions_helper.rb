@@ -16,7 +16,7 @@ module NavigationPluginsQuestionsHelper
   def navigation_items_mapper
     {
       nav_header: "Header",
-      nav_second_level: "Nested Menu",
+      nav_nested_menu: "Nested Menu",
       nav_screen: "Screen",
       nav_url: "URL",
       chromecast: "Chromecast",
