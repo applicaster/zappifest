@@ -23,6 +23,8 @@ module NavigationPluginsQuestionsHelper
       applicaster_feed: "Applicaster Social Feed",
       applicaster_crossmates: "Crossmates",
       live_drawer: "Live Drawer",
+      nav_settings: "Settings",
+      nav_epg: "EPG",
     }
   end
 end
