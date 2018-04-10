@@ -38,6 +38,10 @@ module ManifestHelpers
     "supported_nav_items",
     "max_nav_items",
     "zapp_configuration",
+    "summary",
+    "guide",
+    "core_plugin",
+    "configuration_panel_disabled",
   ]
 
   Types = [
