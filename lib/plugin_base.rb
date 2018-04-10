@@ -7,6 +7,8 @@ class PluginBase
     @create_new_plugin = options.new
     @manifest = get_manifest_data(options)
     @name = @manifest["name"]
+    @plugin_guide = get_markdown_data(options.guide) || @manifest["guide"]
+    @plugin_description = get_markdown_data(options.description) || @manifest["description"]
     @identifier = format_identifier(@manifest["identifier"])
     @base_url = options.override_url || NetworkHelpers::ZAPP_URL
     @access_token = options.access_token
@@ -27,6 +29,11 @@ class PluginBase
   def get_manifest_data(options)
     manifest_file = File.open(options.manifest)
     JSON.parse(File.read(manifest_file))
+  end
+
+  def get_markdown_data(markdown_file)
+    return unless markdown_file
+    File.read(File.open(markdown_file)).to_s
   end
 
   def format_identifier(identifier)
