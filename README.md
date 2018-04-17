@@ -51,7 +51,7 @@ $ zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp
 ```
 
 ### Overriding endpoint
-You can override the remote end point using `--override-url` <http://localhost:{your-port}/api/v1/admin>
+You can override the remote end point using `--override-url http://localhost:{your-port}/api/v1/admin` 
 
 ### Contributing
 1. `git clone https://github.com/applicaster/zappifest.git`
