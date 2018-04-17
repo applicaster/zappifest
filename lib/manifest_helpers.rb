@@ -39,6 +39,7 @@ module ManifestHelpers
     "max_nav_items",
     "zapp_configuration",
     "summary",
+    "cover_image",
     "guide",
     "core_plugin",
     "configuration_panel_disabled",
