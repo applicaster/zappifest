@@ -78,6 +78,8 @@ command :publish do |c|
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.option '--override-url URL', String, 'alternate url'
   c.option '--new', String, 'use this option to publish a new plugin with a new identifier'
+  c.option '--plugin-guide PATH', String, 'markdown file for the plugin guide'
+  c.option '--plugin-description PATH', String, 'markdown file for the plugin description'
   c.action do |args, options|
 
     VersionHelper.new(c).check_version

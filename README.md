@@ -44,6 +44,12 @@ Check the plugin id on [Zapp](https://zapp.applicaster.com/admin/plugins) (under
 
 Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json-file> --access-token <zapp-access-token>`
 
+#### Markdown files
+You can use markdown files to populate the `guide` and `description` fields of the manifest. To do so, create markdown files for these fields, and add the path to these files in the command :
+```
+$ zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token> --guide <path-to-guide.md> --description <path-to-description.md>
+```
+
 ### Overriding endpoint
 You can override the remote end point using `--override-url` <http://localhost:{your-port}/api/v1/admin>
 
