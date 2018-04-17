@@ -59,13 +59,13 @@ class Plugin < PluginBase
       params["plugin[category]"] = @manifest["type"]
       params["plugin[external_identifier]"] = @identifier
       params["plugin[whitelisted_account_ids][]"] = @manifest["whitelisted_account_ids"]
-      params["plugin[guide]"] = @plugin_guide || ""
-      params["plugin[description]"] = @manifest["description"] || ""
-      params["plugin[summary]"] = @manifest["summary"] || ""
+      params["plugin[guide]"] = @plugin_guide
+      params["plugin[description]"] = @manifest["description"]
+      params["plugin[summary]"] = @manifest["summary"]
       params["plugin[core_plugin]"] = @manifest["core_plugin"]
       params["plugin[configuration_panel_disabled]"] = @manifest["configuration_panel_disabled"]
-      params["plugin[cover_image]"] = @manifest["thumbnail"] || ""
-      params["plugin[preview_image]"] = @manifest["screenshots"] || ""
+      params["plugin[cover_image]"] = @manifest["thumbnail"]
+      params["plugin[preview_image]"] = @manifest["screenshots"]
     end
   end
 
