@@ -30,6 +30,7 @@ module ManifestHelpers
     "thumbnail",
     "screenshots",
     "preview",
+    "about",
     "general",
     "assets",
     "styles",

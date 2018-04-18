@@ -60,8 +60,8 @@ class Plugin < PluginBase
       params["plugin[external_identifier]"] = @identifier
       params["plugin[whitelisted_account_ids][]"] = @manifest["whitelisted_account_ids"]
       params["plugin[guide]"] = @plugin_guide
-      params["plugin[description]"] = @plugin_description
-      params["plugin[summary]"] = @manifest["summary"]
+      params["plugin[description]"] = @manifest["description"]
+      params["plugin[about]"] = @plugin_about
       params["plugin[core_plugin]"] = @manifest["core_plugin"] || false
       params["plugin[configuration_panel_disabled]"] = @manifest["configuration_panel_disabled"] || false
       params["plugin[cover_image]"] = @manifest["cover_image"]
