@@ -8,7 +8,7 @@ class PluginBase
     @manifest = get_manifest_data(options)
     @name = @manifest["name"]
     @plugin_guide = get_markdown_data(options.guide) || @manifest["guide"]
-    @plugin_description = get_markdown_data(options.description) || @manifest["description"]
+    @plugin_about = get_markdown_data(options.about) || @manifest["about"]
     @identifier = format_identifier(@manifest["identifier"])
     @base_url = options.override_url || NetworkHelpers::ZAPP_URL
     @access_token = options.access_token

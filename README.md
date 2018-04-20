@@ -47,11 +47,11 @@ Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json
 #### Markdown files
 You can use markdown files to populate the `guide` and `description` fields of the manifest. To do so, create markdown files for these fields, and add the path to these files in the command :
 ```
-$ zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token> --guide <path-to-guide.md> --description <path-to-description.md>
+$ zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token> --guide <path-to-guide.md> --about <path-to-about.md>
 ```
 
 ### Overriding endpoint
-You can override the remote end point using `--override-url` <http://localhost:{your-port}/api/v1/admin>
+You can override the remote end point using `--override-url http://localhost:{your-port}/api/v1/admin`
 
 ### Contributing
 1. `git clone https://github.com/applicaster/zappifest.git`
