@@ -65,7 +65,7 @@ class Plugin < PluginBase
       params["plugin[core_plugin]"] = @manifest["core_plugin"] || false
       params["plugin[configuration_panel_disabled]"] = @manifest["configuration_panel_disabled"] || false
       params["plugin[cover_image]"] = @manifest["cover_image"]
-      params["plugin[preview_image]"] = @manifest.dig("preview", "general", "url")
+      params["plugin[preview_image]"] = @manifest.dig("preview", "general")&.first&.dig("url")
     end
   end
 
