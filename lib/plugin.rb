@@ -92,9 +92,9 @@ class Plugin < PluginBase
   end
 
   def preview_image
-    previews = @manifest.dig("preview", "general")
-    return if previews.nil?
-
-    previews.class == Array ? previews.first&.dig("url") : previews.dig("url")
+    return unless @manifest["preview"]
+    previews = @manifest["preview"]["general"]
+    return unless previews
+    previews.kind_of?(Array) ? previews.first && previews.first["url"] : previews["url"]
   end
 end
