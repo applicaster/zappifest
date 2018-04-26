@@ -65,7 +65,7 @@ class Plugin < PluginBase
       params["plugin[core_plugin]"] = @manifest["core_plugin"] || false
       params["plugin[configuration_panel_disabled]"] = @manifest["configuration_panel_disabled"] || false
       params["plugin[cover_image]"] = @manifest["cover_image"]
-      params["plugin[preview_image]"] = @manifest.dig("preview", "general")&.first&.dig("url")
+      params["plugin[preview_image]"] = preview_image
     end
   end
 
@@ -89,5 +89,12 @@ class Plugin < PluginBase
       plugin[category]
       plugin[whitelisted_account_ids][]
     )
+  end
+
+  def preview_image
+    previews = @manifest.dig("preview", "general")
+    return if previews.nil?
+
+    previews.class == Array ? previews.first&.dig("url") : previews.dig("url")
   end
 end
