@@ -80,6 +80,7 @@ class PluginVersion < PluginBase
       params["plugin_version[version]"] = @manifest["manifest_version"]
       params["plugin_version[platform]"] = platform
       params["plugin_version[scheme]"] = @manifest["scheme"]
+      params["plugin_version[latest_version]"] = @manifest["latest_version"] || true
     end
   end
 
