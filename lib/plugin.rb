@@ -65,6 +65,7 @@ class Plugin < PluginBase
       params["plugin[core_plugin]"] = @manifest["core_plugin"] || false
       params["plugin[configuration_panel_disabled]"] = @manifest["configuration_panel_disabled"] || false
       params["plugin[cover_image]"] = @manifest["cover_image"]
+      params["plugin[ui_builder_support]"] = @manifest["ui_builder_support"] || true
       params["plugin[preview_image]"] = preview_image
     end
   end
