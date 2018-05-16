@@ -44,6 +44,7 @@ module ManifestHelpers
     "guide",
     "core_plugin",
     "configuration_panel_disabled",
+    "ui_builder_support",
   ]
 
   Types = [
