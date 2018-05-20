@@ -39,6 +39,11 @@ Run `zappifest publish --manifest <path-to-manifest-json-file> --access-token <z
 If you want to publish a manifest for a new plugin, with a new identifier, you need to use the `--new` option.
 This isn't needed when you are publishing a new version or updating an existing version of an existing plugin.
 
+```
+Note: It is recommended to set the access-token as environment variable `ZAPP_TOKEN`.
+By doing so, `access_token` param for publishing will not be required.
+```
+
 #### Updating existing plugin
 Check the plugin id on [Zapp](https://zapp.applicaster.com/admin/plugins) (under the relevant plugin versions).
 

@@ -81,6 +81,7 @@ command :publish do |c|
   c.option '--plugin-guide PATH', String, 'markdown file for the plugin guide'
   c.option '--plugin-description PATH', String, 'markdown file for the plugin description'
   c.action do |args, options|
+    options.default access_token: ENV["ZAPP_TOKEN"]
 
     VersionHelper.new(c).check_version
 
