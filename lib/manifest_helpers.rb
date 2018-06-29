@@ -9,6 +9,7 @@ module ManifestHelpers
     "type",
     "min_zapp_sdk",
     "whitelisted_account_ids",
+    "ui_builder_support",
   ]
 
   OPTIONAL_KEYS = [
@@ -44,7 +45,6 @@ module ManifestHelpers
     "guide",
     "core_plugin",
     "configuration_panel_disabled",
-    "ui_builder_support",
   ]
 
   Types = [
