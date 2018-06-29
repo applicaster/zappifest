@@ -21,15 +21,19 @@ module Question
     end
   end
 
-  def ask_for_version(question)
+  def ask_for_version(question, validate_presence = true, default = nil)
     ask_base(question) do |q|
-      q.validate = lambda { |version| valid_version?(version) }
+      q.validate = lambda do |version|
+        valid_version = version if version.present?
+        validate_presence ? valid_version?(valid_version || default) : true
+      end
       q.responses[:not_valid] = "Version not valid"
-      q.default = "0.1.0"
+      q.default = default
     end
   end
 
   def valid_version?(version)
+    return if version.nil?
     return Versionomy.parse(version)
   rescue Versionomy::Errors::VersionomyError
     false
