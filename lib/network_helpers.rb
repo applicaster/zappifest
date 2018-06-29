@@ -72,6 +72,11 @@ module NetworkHelpers
       .response
   end
 
+  def get_accounts_list(options)
+    uri = URI.parse("#{ACCOUNTS_URL}/accounts.json")
+    Request.new(uri, { "access_token" => options.access_token }).do_request(:get).response
+  end
+
   def respond_to_missing?(method_name, include_private = false)
     %w(get_request put_request post_request).include?(method_name)
   end

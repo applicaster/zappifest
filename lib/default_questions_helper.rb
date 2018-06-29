@@ -1,7 +1,7 @@
 module DefaultQuestionsHelper
   module_function
 
-  def ask_base_questions(manifest_hash = { api: {}, dependency_repository_url: [], platform: nil })
+  def ask_base_questions(options, manifest_hash = { api: {}, dependency_repository_url: [], platform: nil })
     manifest_hash[:author_name] = Question.ask_non_empty("Author Name:", "author")
 
     manifest_hash[:author_email] = ask("[?] Author Email: ") do |q|
@@ -41,18 +41,55 @@ module DefaultQuestionsHelper
       manifest_hash[:dependency_version] = Question.ask_for_version("Package version:")
     end
 
-    manifest_hash[:whitelisted_account_ids] = []
-
-    whitelisted_account_ids = Question.ask_base("Whitelisted account ids: (comma seperated, leave blank if no restrictions apply)")
-
-    manifest_hash[:whitelisted_account_ids] = whitelisted_account_ids.gsub(" ","")
-      .split(",") if whitelisted_account_ids
-
+    ask_for_whitelisted_accounts(manifest_hash, options)
     manifest_hash[:min_zapp_sdk] = Question.ask_for_version("Min Zapp SDK:")
     manifest_hash[:deprecated_since_zapp_sdk] = Question.ask_for_version("Deprecated since Zapp SDK version:")
     manifest_hash[:unsupported_since_zapp_sdk] = Question.ask_for_version("Unsupported since Zapp SDK:")
 
     manifest_hash
+  end
+
+  def ask_for_whitelisted_accounts(manifest_hash, options)
+    begin
+      manifest_hash[:whitelisted_account_ids] = []
+      say "[?] Whitelisted Accounts"
+      color "Loading accounts, please wait a moment...", :green
+      response = NetworkHelpers.get_accounts_list(options)
+    rescue => error
+      color "Cannot load accounts. Request failed: #{error}", :red
+      exit
+    end
+
+    case response
+    when Net::HTTPSuccess
+      parsed_response = JSON.parse(response.body).each_with_object({}) do |account, result|
+        result[account["name"]] = account["old_id"]
+      end
+
+      comp = proc { |s| parsed_response.keys.sort.grep(Regexp.new('^' + Regexp.escape(s), "i")) }
+
+      Readline.completion_append_character = nil
+      Readline.completion_proc = comp
+      say "Account name is case-sensitive. Use the TAB key for autocompletion, press the RETURN key to finish selection"
+
+      while line = Readline.readline('> ', true)
+        p line
+        break if line == ""
+        id = parsed_response[line]
+        if id
+          manifest_hash[:whitelisted_account_ids] << id if id
+        else
+          say "Account name is incorrect, please make sure you type an exisiting name (case-senesitive)"
+        end
+      end
+
+    when Net::HTTPUnauthorized
+      color "Invalid token", :red
+      exit
+    else
+      color "Cannot load accounts, please try later.", :red
+      exit
+    end
   end
 
   def ask_for_android_dependency_repositories(manifest_hash)
