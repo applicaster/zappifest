@@ -66,29 +66,40 @@ module DefaultQuestionsHelper
         result[account["name"]] = account["old_id"]
       end
 
-      comp = proc { |s| parsed_response.keys.sort.grep(Regexp.new('^' + Regexp.escape(s), "i")) }
-
-      Readline.completion_append_character = nil
-      Readline.completion_proc = comp
-      say "Account name is case-sensitive. Use the TAB key for autocompletion, press the RETURN key to finish selection"
-
-      while line = Readline.readline('> ', true)
-        p line
-        break if line == ""
-        id = parsed_response[line]
-        if id
-          manifest_hash[:whitelisted_account_ids] << id if id
-        else
-          say "Account name is incorrect, please make sure you type an exisiting name (case-senesitive)"
-        end
-      end
-
+      ask_for_whitelisted_account_ids_input(manifest_hash, parsed_response)
     when Net::HTTPUnauthorized
       color "Invalid token", :red
       exit
     else
       color "Cannot load accounts, please try later.", :red
       exit
+    end
+  end
+
+  def ask_for_whitelisted_account_ids_input(manifest_hash, accounts)
+    comp = proc { |s| accounts.keys.sort.grep(Regexp.new("^" + Regexp.escape(s), "i")) }
+
+    Readline.completion_append_character = nil
+    Readline.completion_proc = comp
+    say "Account name is case-sensitive. Use the TAB key for autocompletion, press the RETURN key to finish selection"
+
+    while line = Readline.readline("[?] ", true)
+      p line
+
+      if line == ""
+        if manifest_hash[:whitelisted_account_ids].any?
+          break
+        else
+          say "whitelisted account IDs cannot be empty"
+        end
+      else
+        if accounts[line]
+          manifest_hash[:whitelisted_account_ids] << accounts[line]
+        else
+          say "Account name is incorrect, please make sure you type an exisiting name (case-senesitive)."\
+            " Use the TAB key for autocompletion"
+        end
+      end
     end
   end
 
