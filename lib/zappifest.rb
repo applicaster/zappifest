@@ -6,6 +6,7 @@ require 'inquirer'
 require 'net/http'
 require 'diffy'
 require 'terminal-table'
+require 'readline'
 
 require_relative 'version'
 require_relative 'multipart'
@@ -30,7 +31,9 @@ command :init do |c|
   c.syntax = 'zappifest init [options]'
   c.summary = 'Initialize plugin-manifest.json'
   c.description = 'Initialize plugin-manifest.json'
+  c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.action do |args, options|
+    options.default access_token: ENV["ZAPP_TOKEN"]
 
     VersionHelper.new(options).check_version
 
@@ -49,10 +52,10 @@ command :init do |c|
     color "This utility will walk you through creating a plugin-manifest.json file.", :green
     color "It only covers the most common items, and tries to guess sensible defaults.\n", :green
 
-    manifest_hash = DefaultQuestionsHelper.ask_base_questions
+    manifest_hash = DefaultQuestionsHelper.ask_base_questions(options)
 
     if manifest_hash[:type].to_s == "data_source_provider"
-      DataSourceProviderQuestionsHelper.ask_data_provider_questions(manifest_hash)
+      DataSourceProviderQuestionsHelper.ask_data_provider_questions(manifest_hash, options)
     else
       NavigationPluginsQuestionsHelper.ask_nav_items(manifest_hash)
       ApiQuestionsHelper.ask_for_api(manifest_hash)
@@ -109,7 +112,10 @@ command :publish do |c|
 
     plugin_version = PluginVersion.new(options)
 
-    ManifestHelpers.ensure_whitelisted_accounts(plugin_version.manifest)
+    unless manifest[:whitelisted_account_ids].any?
+      color "Manifest must contain at least one whitelisted account id", :red
+      exit
+    end
 
     diff_keys = plugin_version.manifest.keys - ManifestHelpers.whitelisted_keys
     missing_keys = ManifestHelpers::MANDATORY_KEYS - plugin_version.manifest.keys

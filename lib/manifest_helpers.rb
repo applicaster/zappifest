@@ -87,11 +87,6 @@ module ManifestHelpers
     end
   end
 
-  def ensure_whitelisted_accounts(manifest_hash)
-    return if manifest_hash.keys.include?("whitelisted_account_ids")
-    manifest_hash["whitelisted_account_ids"] = []
-  end
-
   def whitelisted_keys
     MANDATORY_KEYS + OPTIONAL_KEYS
   end
