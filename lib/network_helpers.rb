@@ -26,7 +26,7 @@ module NetworkHelpers
 
     def request_url
       return @uri.path unless @method == :get
-      "#{@uri.path}?access_token=#{@params["access_token"]}"
+      "#{@uri.path}?access_token=#{@params["access_token"]}&#{@uri.query}"
     end
 
     def request_params
@@ -74,6 +74,14 @@ module NetworkHelpers
 
   def get_accounts_list(options)
     uri = URI.parse("#{ACCOUNTS_URL}/accounts.json")
+    Request.new(uri, { "access_token" => options.access_token }).do_request(:get).response
+  end
+
+  def get_zapp_sdks(platform, options)
+    uri = URI.parse(
+      "#{ZAPP_URL}/sdk_versions.json?by_platform=#{platform}&status=stable&stable_channel_by_version=true",
+    )
+
     Request.new(uri, { "access_token" => options.access_token }).do_request(:get).response
   end
 
