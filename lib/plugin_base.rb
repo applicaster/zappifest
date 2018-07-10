@@ -1,7 +1,7 @@
 class PluginBase
   include NetworkHelpers
 
-  attr_accessor :id, :name, :identifier
+  attr_accessor :id, :name, :identifier, :manifest
 
   def initialize(options)
     @create_new_plugin = options.new
