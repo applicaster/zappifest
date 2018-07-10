@@ -33,9 +33,9 @@ module DefaultQuestionsHelper
       ask_for_dependency_repository(manifest_hash)
     end
 
-    manifest_hash[:ui_builder_support] = agree "[?] Should this plugin be available in Zapp UI Builder apps? (Y/n)"
+    manifest_hash[:ui_builder_support] = agree "[?] Should this plugin be available for Zapp UI Builder apps? (Y/n)"
     
-    package_name = Question.ask_base("Dependency name - The name of the Pod or Maven(Bintry) of your plugin:")
+    package_name = Question.ask_base("Dependency name (name of the Pod or Maven library of you plugin):")
 
     unless package_name.empty?
       manifest_hash[:dependency_name] = package_name
