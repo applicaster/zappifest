@@ -50,8 +50,9 @@ command :init do |c|
     )
 
     color "This utility will walk you through creating a plugin-manifest.json file.", :green
-    color "It only covers the most common items, and tries to guess sensible defaults.\n", :green
-
+    color "It only covers the most common items, and tries to guess sensible defaults.", :green
+    color "Full documentation regarding the different keys can be found here - https://developer-zapp.applicaster.com/zappifest/plugins-manifest-format.html \n", :green  
+   
     manifest_hash = DefaultQuestionsHelper.ask_base_questions(options)
 
     if manifest_hash[:type].to_s == "data_source_provider"

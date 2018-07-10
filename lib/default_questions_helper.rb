@@ -9,16 +9,16 @@ module DefaultQuestionsHelper
       q.responses[:not_valid] = "Should be a valid email."
     end
 
-    manifest_hash[:manifest_version] = Question.ask_for_version("Manifest version:", true, "0.1.0")
+    manifest_hash[:manifest_version] = Question.ask_for_version("Plugin manifest version (this key will set the plugin version in Zapp):", true, "0.1.0")
 
-    manifest_hash[:name] = Question.ask_non_empty("Plugin Name:", "name")
-    manifest_hash[:description] = Question.ask_non_empty("Plugin description:", "description")
+    manifest_hash[:name] = Question.ask_non_empty("Plugin Name (Use the same name for all platforms):", "name")
+    manifest_hash[:description] = Question.ask_non_empty("Plugin description (characters limit is 80):", "description")
 
     type_index = Ask.list "[?] Plugin Type", ManifestHelpers::Types.map { |type| type[:label] }
     manifest_hash[:type] = ManifestHelpers::Types[type_index][:value]
 
     manifest_hash[:identifier] = Question.ask_non_empty(
-      "Plugin identifier: (Unique identifier for the plugin)",
+      "Plugin identifier: (Unique identifier for the plugin, should be the same for all platforms)",
       "identifier",
     )
 
@@ -33,12 +33,13 @@ module DefaultQuestionsHelper
       ask_for_dependency_repository(manifest_hash)
     end
 
-    manifest_hash[:ui_builder_support] = agree "[?] Should this plugin be available in Zapp UI Builder? (Y/n)"
-    package_name = Question.ask_base("Package name:")
+    manifest_hash[:ui_builder_support] = agree "[?] Should this plugin be available for Zapp UI Builder apps? (Y/n)"
+    
+    package_name = Question.ask_base("Dependency name (name of the Pod or Maven library of you plugin):")
 
     unless package_name.empty?
       manifest_hash[:dependency_name] = package_name
-      manifest_hash[:dependency_version] = Question.ask_for_version("Package version:", true, "0.1.0")
+      manifest_hash[:dependency_version] = Question.ask_for_version("Dependency version:", true, "0.1.0")
     end
 
     ask_for_whitelisted_accounts(manifest_hash, options)
