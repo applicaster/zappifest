@@ -42,11 +42,41 @@ module DefaultQuestionsHelper
     end
 
     ask_for_whitelisted_accounts(manifest_hash, options)
-    manifest_hash[:min_zapp_sdk] = Question.ask_for_version("Min Zapp SDK:")
-    manifest_hash[:deprecated_since_zapp_sdk] = Question.ask_for_version("Deprecated since Zapp SDK version:", false)
-    manifest_hash[:unsupported_since_zapp_sdk] = Question.ask_for_version("Unsupported since Zapp SDK:", false)
+    ask_for_min_sdk(manifest_hash, options)
+
+    manifest_hash[:deprecated_since_zapp_sdk] =
+      Question.ask_for_version("Deprecated since Zapp SDK version:", false)
+
+    manifest_hash[:unsupported_since_zapp_sdk] =
+      Question.ask_for_version("Unsupported since Zapp SDK version:", false)
 
     manifest_hash
+  end
+
+  def ask_for_min_sdk(manifest_hash, options)
+    begin
+      say "Zapp SDKs:"
+      color "Loading Zapp SDKs, please wait a moment...", :green
+      response = NetworkHelpers.get_zapp_sdks(manifest_hash[:platform], options)
+    rescue => error
+      color "Cannot load Zapp SDKs. Request failed: #{error}", :red
+      exit
+    end
+
+    case response
+    when Net::HTTPSuccess
+      parsed_response = JSON.parse(response.body).map { |sdk| sdk["version"] }
+
+      manifest_hash[:min_zapp_sdk] =
+        Question.ask_for_version("Min Zapp SDK version:", true, parsed_response.last)
+
+    when Net::HTTPUnauthorized
+      color "Invalid token", :red
+      exit
+    else
+      color "Cannot load Zapp SDKs, please try later.", :red
+      exit
+    end
   end
 
   def ask_for_whitelisted_accounts(manifest_hash, options)
