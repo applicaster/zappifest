@@ -51,8 +51,8 @@ command :init do |c|
 
     color "This utility will walk you through creating a plugin-manifest.json file.", :green
     color "It only covers the most common items, and tries to guess sensible defaults.", :green
-    color "Full documentation regarding the different keys can be found here - https://developer-zapp.applicaster.com/zappifest/plugins-manifest-format.html \n", :green  
-   
+    color "Full documentation regarding the different keys can be found here - https://developer-zapp.applicaster.com/zappifest/plugins-manifest-format.html \n", :green
+
     manifest_hash = DefaultQuestionsHelper.ask_base_questions(options)
 
     if manifest_hash[:type].to_s == "data_source_provider"
@@ -113,7 +113,7 @@ command :publish do |c|
 
     plugin_version = PluginVersion.new(options)
 
-    unless manifest[:whitelisted_account_ids].any?
+    unless plugin_version.manifest[:whitelisted_account_ids].any?
       color "Manifest must contain at least one whitelisted account id", :red
       exit
     end
