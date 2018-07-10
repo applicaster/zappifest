@@ -7,7 +7,7 @@ module ApiQuestionsHelper
     manifest_hash[:api][:require_startup_execution] = agree "[?] Plugin requires app startup execution? (Y/n)\n" +
       "By setting to true, the plugin must implement app startup interface/protocol"
 
-    manifest_hash[:api][:class_name] = Question.ask_non_empty("Class Name (OPTIONAL for React Native & Data Source plugins, MANDATORY for native iOS/Android plugins):", "Class Name")
+    manifest_hash[:api][:class_name] = Question.ask_non_empty("Class Name (optional field for the class name to be use when launching the plugin):", "Class Name")
 
     if manifest_hash[:platform].to_s =~ /android/
       add_proguard_rules = agree "[?] Need to add custom Proguard rules? (will open a text editor)"
