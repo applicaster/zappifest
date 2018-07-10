@@ -11,7 +11,7 @@ module DataSourceProviderQuestionsHelper
     manifest_hash[:data_types] = []
     say "Data Types: \n"
 
-    data_type_count = ask("[?] How many Data types the provider supports? ", Integer) { |q| q.in = 1..10 }
+    data_type_count = ask("[?] How many Data Types the provider supports? ", Integer) { |q| q.in = 1..10 }
 
     data_type_count.times do |index|
       color "***** Data Type #{index + 1} *****", :yellow
