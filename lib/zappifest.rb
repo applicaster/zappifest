@@ -112,8 +112,9 @@ command :publish do |c|
     color "Gathering plugin information...", :green
 
     plugin_version = PluginVersion.new(options)
+    whitelisted_accounts = plugin_version.manifest["whitelisted_account_ids"]
 
-    unless plugin_version.manifest[:whitelisted_account_ids].any?
+    unless whitelisted_accounts && whitelisted_accounts.any?
       color "Manifest must contain at least one whitelisted account id", :red
       exit
     end
