@@ -56,7 +56,7 @@ command :init do |c|
     manifest_hash = DefaultQuestionsHelper.ask_base_questions(options)
 
     if manifest_hash[:type].to_s == "data_source_provider"
-      DataSourceProviderQuestionsHelper.ask_data_provider_questions(manifest_hash, options)
+      DataSourceProviderQuestionsHelper.ask_data_provider_questions(manifest_hash)
     else
       NavigationPluginsQuestionsHelper.ask_nav_items(manifest_hash)
       ApiQuestionsHelper.ask_for_api(manifest_hash)
