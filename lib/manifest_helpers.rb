@@ -90,4 +90,9 @@ module ManifestHelpers
   def whitelisted_keys
     MANDATORY_KEYS + OPTIONAL_KEYS
   end
+
+  def valid_account_ids?(manifest, options)
+    return true unless options.new
+    manifest["whitelisted_account_ids"] && manifest["whitelisted_account_ids"].any?
+  end
 end
