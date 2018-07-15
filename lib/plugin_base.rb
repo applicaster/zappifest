@@ -7,8 +7,8 @@ class PluginBase
     @create_new_plugin = options.new
     @manifest = get_manifest_data(options)
     @name = @manifest["name"]
-    @plugin_guide = get_markdown_data(options.guide) || @manifest["guide"]
-    @plugin_about = get_markdown_data(options.about) || @manifest["about"]
+    @plugin_guide = get_markdown_data(options.plugin_guide) || @manifest["guide"]
+    @plugin_about = get_markdown_data(options.plugin_about) || @manifest["about"]
     @identifier = format_identifier(@manifest["identifier"])
     @base_url = options.override_url || NetworkHelpers::ZAPP_URL
     @access_token = options.access_token
@@ -33,7 +33,7 @@ class PluginBase
 
   def get_markdown_data(markdown_file)
     return unless markdown_file
-    File.read(File.open(markdown_file)).to_s
+    File.read(File.open(markdown_file)).gsub!("\n", "\r\n") #required for Zapp to be able to parse line break on md content
   end
 
   def format_identifier(identifier)
