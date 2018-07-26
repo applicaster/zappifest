@@ -69,6 +69,7 @@ module ManifestHelpers
     { label: "Android", value: "android" },
     { label: "tvOS", value: "tvos" },
     { label: "Android TV", value: "android_tv" },
+    { label: "Roku", value: "roku" },
   ]
 
   INPUT_FIELD_TYPES = %i(text checkbox textarea dropdown tags colorpicker)
