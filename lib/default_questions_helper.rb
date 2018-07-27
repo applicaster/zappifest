@@ -17,6 +17,12 @@ module DefaultQuestionsHelper
     type_index = Ask.list "[?] Plugin Type", ManifestHelpers::Types.map { |type| type[:label] }
     manifest_hash[:type] = ManifestHelpers::Types[type_index][:value]
 
+    screen = ManifestHelpers::Types[type_index][:screen]
+
+    if screen.nil?
+      manifest_hash[:screen] = agree "Should this plugin be presented as a full screen in the app?"
+    end
+
     manifest_hash[:identifier] = Question.ask_non_empty(
       "Plugin identifier: (Unique identifier for the plugin, should be the same for all platforms)",
       "identifier",
@@ -34,7 +40,7 @@ module DefaultQuestionsHelper
     end
 
     manifest_hash[:ui_builder_support] = agree "[?] Should this plugin be available for Zapp UI Builder apps? (Y/n)"
-    
+
     package_name = Question.ask_base("Dependency name (name of the Pod or Maven library of you plugin):")
 
     unless package_name.empty?
