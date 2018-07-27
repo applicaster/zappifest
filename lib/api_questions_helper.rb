@@ -13,7 +13,7 @@ module ApiQuestionsHelper
       add_proguard_rules = agree "[?] Need to add custom Proguard rules? (will open a text editor)"
       manifest_hash[:api][:proguard_rules] = ask_editor(nil, "vim") if add_proguard_rules
 
-    elsif manifest_hash[:platform].to_s =~ /ios/
+    elsif manifest_hash[:platform].to_s =~ /ios|tvos/
       manifest_hash[:api][:modules] = ask "[?] Enter Swift module names the plugin should support (use it in case you didn't add the swift module as part of the class name), or leave a blank line to quit" do |q|
         q.gather = ""
       end
