@@ -73,7 +73,7 @@ module ManifestHelpers
     { label: "Roku", value: "roku" },
   ]
 
-  INPUT_FIELD_TYPES = %i(text checkbox textarea dropdown tags colorpicker)
+  INPUT_FIELD_TYPES = %i(text checkbox textarea dropdown tags colorpicker uploader)
 
   TOOLTIP_TYPES = [
     { type: :plain, value: "Plain text"},

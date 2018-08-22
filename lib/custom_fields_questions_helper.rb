@@ -4,6 +4,12 @@ module CustomFieldsQuestionsHelper
   def ask_for_custom_fields(manifest_hash)
     manifest_hash[:custom_configuration_fields] = []
     say "Custom configuration fields: \n"
+
+    add_assets_bundle = agree "[?] Does the plugin require bundled assets "\
+      "(This will create file uploader field for users to upload an assets zip file, "\
+      "and will add the assets to resources of the bundle on build time)"
+
+    add_assets_bundle_field(manifest_hash) if add_assets_bundle
     add_custom_fields = agree "[?] Wanna add custom fields? "
     return unless add_custom_fields
 
@@ -76,5 +82,39 @@ module CustomFieldsQuestionsHelper
     field_hash[:default] = default unless default.to_s.empty?
 
     field_hash
+  end
+
+  def add_assets_bundle_field(manifest_hash)
+    if manifest_hash[:platform]
+      manifest_hash[:custom_configuration_fields].push(
+        send("#{manifest_hash[:platform].downcase}_assets_bundle_field"),
+      )
+    else
+      manifest_hash[:custom_configuration_fields].push(ios_assets_bundle_field)
+      manifest_hash[:custom_configuration_fields].push(android_assets_bundle_field)
+    end
+  end
+
+  def android_assets_bundle_field
+    {
+      type: "uploader",
+      key: "android_assets_bundle",
+      tooltip_text: assets_bundle_tooltip
+    }
+  end
+
+  def ios_assets_bundle_field
+    {
+      type: "uploader",
+      key: "ios_assets_bundle",
+      tooltip_text: assets_bundle_tooltip
+    }
+  end
+
+  def assets_bundle_tooltip
+    "Upload a Zip file following the folder structure and hierarchy guideline of the "\
+      "platform. The Zip file will be extracted during the build time and will add the assets to "\
+      "the resources of the bundle/package. This field does not affect runtime and a change will "\
+      "require a new build of the app version."
   end
 end
