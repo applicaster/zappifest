@@ -38,6 +38,7 @@ module ManifestHelpers
     "rules",
     "data",
     "advertising",
+    "screen",
     "supported_nav_items",
     "max_nav_items",
     "zapp_configuration",
