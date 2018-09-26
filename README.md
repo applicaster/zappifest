@@ -52,7 +52,7 @@ Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json
 #### Markdown files
 You can use markdown files to populate the `guide` and `description` fields of the manifest. To do so, create markdown files for these fields, and add the path to these files in the command :
 ```
-$ zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token> --guide <path-to-guide.md> --about <path-to-about.md>
+$ zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token> --plugin-about <path-to-about.md>
 ```
 
 ### Overriding endpoint
