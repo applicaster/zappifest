@@ -47,6 +47,8 @@ module ManifestHelpers
     "guide",
     "core_plugin",
     "configuration_panel_disabled",
+    "export",
+    "import",
   ]
 
   Types = [
