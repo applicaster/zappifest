@@ -41,7 +41,7 @@ class Plugin < PluginBase
       plugin_candidates.first
     else
       plugin_identifiers = plugin_candidates.map { |p| p["external_identifier"] }
-      identifier_index = multiple_option_question("Please select your plugin :", plugin_identifiers)
+      identifier_index = multiple_option_question("Please select your plugin", plugin_identifiers)
       plugin_candidates[identifier_index]
     end
   end
@@ -88,6 +88,15 @@ class Plugin < PluginBase
       name
       category
       whitelisted_account_ids
+      about
+      preview_image
+      ui_builder_support
+      cover_image
+      configuration_panel_disabled
+      description
+      core_plugin
+      screen
+      exports
     )
   end
 
@@ -96,6 +105,15 @@ class Plugin < PluginBase
       plugin[name]
       plugin[category]
       plugin[whitelisted_account_ids][]
+      plugin[about]
+      plugin[preview_image]
+      plugin[ui_builder_support]
+      plugin[cover_image]
+      plugin[configuration_panel_disabled]
+      plugin[description]
+      plugin[core_plugin]
+      plugin[screen]
+      plugin[exports]
     )
   end
 
