@@ -66,6 +66,7 @@ module ManifestHelpers
     { label: "Data Source Provider", value: "data_source_provider", platform_required: false, screen: false },
     { label: "Broadcaster Selector", value: "broadcaster_selector", platform_required: true },
     { label: "General", value: "general", platform_required: true },
+    { label: "Cell Style Family", value: "cell_style_family", platform_required: true },
   ]
 
   PLATFORMS = [
