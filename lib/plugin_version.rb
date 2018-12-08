@@ -1,7 +1,7 @@
 require_relative 'plugin_base'
 
 class PluginVersion < PluginBase
-  attr_accessor :manifest
+  attr_accessor :manifest, :plugin
 
   def initialize(options)
     super(options)
@@ -42,7 +42,6 @@ class PluginVersion < PluginBase
   end
 
   def publish
-    @plugin.find_zapp_plugin
     @id ? update : create
   end
 
@@ -65,7 +64,7 @@ class PluginVersion < PluginBase
 
   def check_manifest_version_validity
     Versionomy.parse(@manifest["manifest_version"])
-  rescue => error
+  rescue
     color "Plugin version #{@manifest["manifest_version"]} is not valid", :red
     exit
   end

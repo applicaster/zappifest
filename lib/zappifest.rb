@@ -114,7 +114,7 @@ command :publish do |c|
 
     plugin_version = PluginVersion.new(options)
 
-    unless ManifestHelpers.valid_account_ids?(plugin_version.manifest, options)
+    unless ManifestHelpers.valid_account_ids?(plugin_version)
       color "Manifest must contain at least one whitelisted account id", :red
       exit
     end

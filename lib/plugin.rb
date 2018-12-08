@@ -3,13 +3,18 @@ require_relative 'plugin_base'
 class Plugin < PluginBase
   include Question
 
+  attr_accessor :id, :existing_plugin
+
   def initialize(options)
     super(options)
-  end
-
-  def find_zapp_plugin
     @existing_plugin = zapp_plugin unless @create_new_plugin
     @id = @existing_plugin["id"] unless @existing_plugin.nil?
+  end
+
+  def public_plugin?
+    return unless existing_plugin
+    return true unless @existing_plugin["whitelisted_account_ids"]
+    @existing_plugin["whitelisted_account_ids"].blank?
   end
 
   def create
