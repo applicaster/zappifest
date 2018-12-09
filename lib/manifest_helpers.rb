@@ -97,8 +97,12 @@ module ManifestHelpers
     MANDATORY_KEYS + OPTIONAL_KEYS
   end
 
-  def valid_account_ids?(manifest, options)
-    return true unless options.new
-    manifest["whitelisted_account_ids"] && manifest["whitelisted_account_ids"].any?
+  def valid_account_ids?(plugin_version)
+    return true if allow_public_plugin?(plugin_version)
+    return plugin_version.manifest["whitelisted_account_ids"] && plugin_version.manifest["whitelisted_account_ids"].any?
+  end
+
+  def allow_public_plugin?(plugin_version)
+    plugin_version.plugin.public_plugin?
   end
 end
