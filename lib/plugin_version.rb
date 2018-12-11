@@ -1,3 +1,4 @@
+require 'tempfile'
 require_relative 'plugin_base'
 
 class PluginVersion < PluginBase
@@ -23,20 +24,14 @@ class PluginVersion < PluginBase
   end
 
   def show_diff
-    diff = Diffy::SplitDiff.new(
-      JSON.pretty_generate(current_manifest),
-      JSON.pretty_generate(@manifest),
-      format: :color,
-    )
+    current = Tempfile.new('current_manifest')
+    current.write JSON.pretty_generate(current_manifest)
 
-    table = Terminal::Table.new do |t|
-      t << ["Remote Manifest", "Local Manifest"]
-      t << :separator
-      t.add_row [diff.left, diff.right]
-    end
+    updated = Tempfile.new('updated_manifest')
+    updated.write JSON.pretty_generate(@manifest)
 
     color "Showing diff...", :green
-    puts table
+    system "git diff --no-index #{current.path} #{updated.path}"
 
     abort unless agree "Are you sure? (This will override an existing plugin)"
   end
