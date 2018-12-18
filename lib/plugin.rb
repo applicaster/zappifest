@@ -74,6 +74,8 @@ class Plugin < PluginBase
       params["plugin[cover_image]"] = @manifest["cover_image"]
       params["plugin[ui_builder_support]"] = @manifest["ui_builder_support"]
       params["plugin[preview_image]"] = preview_image
+      params["plugin[preload]"] = @manifest["preload"] || false
+      params["plugin[postload]"] = @manifest["postload"] || false
     end
   end
 

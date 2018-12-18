@@ -49,6 +49,9 @@ module ManifestHelpers
     "configuration_panel_disabled",
     "export",
     "import",
+    "hooks",
+    "preload",
+    "postload",
   ]
 
   Types = [
