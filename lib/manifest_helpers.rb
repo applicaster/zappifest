@@ -52,6 +52,7 @@ module ManifestHelpers
     "hooks",
     "preload",
     "postload",
+    "supports_offline",
   ]
 
   Types = [
