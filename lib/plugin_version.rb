@@ -3,9 +3,12 @@ require_relative 'plugin_base'
 class PluginVersion < PluginBase
   attr_accessor :manifest, :plugin
 
+  TARGET_TYPES = %w(mobile tv universal tablet)
+
   def initialize(options)
     super(options)
     check_manifest_version_validity
+    check_target_validity
     @id = options.plugin_id || nil
     @plugin = Plugin.new(options)
   end
@@ -69,6 +72,13 @@ class PluginVersion < PluginBase
     exit
   end
 
+  def check_target_validity
+    if !TARGET_TYPES.include?(@manifest["target"]) || @manifest["target"].nil? || @manifest["target"].empty?
+      color "Please enter a valid target, 'mobile', 'tv', 'universal' ot 'tablet' ", :red
+      exit
+    end
+  end
+
   def request_params
     {}.tap do |params|
       params["id"] = @id unless @id.nil?
@@ -80,6 +90,7 @@ class PluginVersion < PluginBase
       params["plugin_version[platform]"] = platform
       params["plugin_version[scheme]"] = @manifest["scheme"]
       params["plugin_version[latest_version]"] = @manifest["latest_version"] || true
+      params["plugin_version[target]"] = @manifest["target"]
     end
   end
 
