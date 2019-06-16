@@ -26,6 +26,10 @@ class PluginBase
     "#{@base_url}/plugin_manifests"
   end
 
+  def targets_url
+    "#{@base_url}/targets"
+  end
+
   def get_manifest_data(options)
     manifest_file = File.open(options.manifest)
     JSON.parse(File.read(manifest_file))

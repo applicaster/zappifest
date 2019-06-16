@@ -53,6 +53,7 @@ module ManifestHelpers
     "preload",
     "postload",
     "supports_offline",
+    "targets",
   ]
 
   Types = [

@@ -6,6 +6,10 @@ class PluginVersion < PluginBase
   def initialize(options)
     super(options)
     check_manifest_version_validity
+
+    @targets = get_request(targets_url, { "access_token" => @access_token }).body
+    check_targets_validity
+
     @id = options.plugin_id || nil
     @plugin = Plugin.new(options)
   end
@@ -62,11 +66,27 @@ class PluginVersion < PluginBase
     end
   end
 
+  def targets
+    @manifest["targets"].map {|target| @targets.select{|t| t.name == target}.id }
+  end
+
   def check_manifest_version_validity
     Versionomy.parse(@manifest["manifest_version"])
   rescue
     color "Plugin version #{@manifest["manifest_version"]} is not valid", :red
     exit
+  end
+
+  def check_targets_validity
+    targets_names = @targets.map {|t| t["name"] }
+
+    if @manifest["targets"].nil? ||
+       @manifest["targets"].empty? ||
+       !@manifest["targets"].all? { |target| targets_names.include?(target) }
+
+      color "Please enter a valid targets, 'mobile' or 'tv' #{targets_names}", :red
+      exit
+    end
   end
 
   def request_params
@@ -80,6 +100,7 @@ class PluginVersion < PluginBase
       params["plugin_version[platform]"] = platform
       params["plugin_version[scheme]"] = @manifest["scheme"]
       params["plugin_version[latest_version]"] = @manifest["latest_version"] || true
+      params["plugin_version[targets]"] = targets
     end
   end
 
