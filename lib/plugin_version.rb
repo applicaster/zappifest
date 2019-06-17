@@ -67,7 +67,7 @@ class PluginVersion < PluginBase
   end
 
   def targets
-    @manifest["targets"].map {|target| @targets.select{|t| t.name == target}.id }
+    @manifest["targets"].map {|target| @targets.select{|t| t["name"] == target}.first["id"] }
   end
 
   def check_manifest_version_validity
