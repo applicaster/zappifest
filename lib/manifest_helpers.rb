@@ -41,6 +41,7 @@ module ManifestHelpers
     "screen",
     "supported_nav_items",
     "max_nav_items",
+    "max_items_per_type",
     "zapp_configuration",
     "summary",
     "cover_image",
