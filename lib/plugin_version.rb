@@ -80,10 +80,26 @@ class PluginVersion < PluginBase
   def check_targets_validity
     targets_names = @targets.map {|t| t["name"] }
 
-    if @manifest["targets"].nil? ||
-       @manifest["targets"].empty? ||
-       !@manifest["targets"].all? { |target| targets_names.include?(target) }
+    if @manifest["targets"].nil? || @manifest["targets"].empty?
+      platform_targets = {
+        android: ["mobile"],
+        ios: ["mobile"],
+        tvos: ["tv"],
+        roku: ["tv"],
+        samsung_tv: ["tv"],
+        android_tv: ["tv"],
+      }
 
+      platform = @manifest["platform"]
+
+      if platform.nil? || platform.empty?
+        return @manifest["targets"] = ["mobile", "tv"]
+      end
+
+      return @manifest["targets"] = platform_targets[platform.to_sym]
+    end
+
+    if !@manifest["targets"].all? { |target| targets_names.include?(target) }
       color "Please enter a valid targets, 'mobile' or 'tv' #{targets_names}", :red
       exit
     end
