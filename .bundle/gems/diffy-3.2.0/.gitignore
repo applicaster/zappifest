@@ -1,5 +1,0 @@
-*.gem
-*.swp
-Gemfile.lock
-tags
-.bundle
