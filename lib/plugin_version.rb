@@ -3,12 +3,21 @@ require_relative 'plugin_base'
 class PluginVersion < PluginBase
   attr_accessor :manifest, :plugin
 
+  TARGETS_MAPPER = {
+    android: ["mobile"],
+    ios: ["mobile"],
+    tvos: ["tv"],
+    roku: ["tv"],
+    samsung_tv: ["tv"],
+    android_tv: ["tv"],
+  }
+
   def initialize(options)
     super(options)
     check_manifest_version_validity
 
     @targets = get_request(targets_url, { "access_token" => @access_token }).body
-    check_targets_validity
+    set_valid_target
 
     @id = options.plugin_id || nil
     @plugin = Plugin.new(options)
@@ -77,26 +86,12 @@ class PluginVersion < PluginBase
     exit
   end
 
-  def check_targets_validity
+  def set_valid_target
     targets_names = @targets.map {|t| t["name"] }
 
     if @manifest["targets"].nil? || @manifest["targets"].empty?
-      platform_targets = {
-        android: ["mobile"],
-        ios: ["mobile"],
-        tvos: ["tv"],
-        roku: ["tv"],
-        samsung_tv: ["tv"],
-        android_tv: ["tv"],
-      }
-
       platform = @manifest["platform"]
-
-      if platform.nil? || platform.empty?
-        return @manifest["targets"] = ["mobile", "tv"]
-      end
-
-      return @manifest["targets"] = platform_targets[platform.to_sym]
+      return @manifest["targets"] = platform.present? ? TARGETS_MAPPER[platform.to_sym] : ["mobile", "tv"]
     end
 
     if !@manifest["targets"].all? { |target| targets_names.include?(target) }
