@@ -87,6 +87,8 @@ module DefaultQuestionsHelper
   end
 
   def ask_for_whitelisted_accounts(manifest_hash, options)
+    return if agree "[?] Is this a new version to exisiting plugin? (Y/n)"
+
     begin
       manifest_hash[:whitelisted_account_ids] = []
       say "[?] Whitelisted Accounts"

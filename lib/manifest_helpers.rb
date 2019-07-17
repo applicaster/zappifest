@@ -1,4 +1,8 @@
 module ManifestHelpers
+  NEW_PLUGIN_MANDATORY_KEYS = [
+    "whitelisted_account_ids",
+  ]
+
   MANDATORY_KEYS = [
     "author_name",
     "author_email",
@@ -8,7 +12,6 @@ module ManifestHelpers
     "identifier",
     "type",
     "min_zapp_sdk",
-    "whitelisted_account_ids",
     "ui_builder_support",
   ]
 
@@ -101,15 +104,20 @@ module ManifestHelpers
   end
 
   def whitelisted_keys
-    MANDATORY_KEYS + OPTIONAL_KEYS
+    NEW_PLUGIN_MANDATORY_KEYS + MANDATORY_KEYS + OPTIONAL_KEYS
   end
 
-  def valid_account_ids?(plugin_version)
-    return true if allow_public_plugin?(plugin_version)
-    return plugin_version.manifest["whitelisted_account_ids"] && plugin_version.manifest["whitelisted_account_ids"].any?
+  def mandatory_keys(new_plugin)
+    return NEW_PLUGIN_MANDATORY_KEYS + MANDATORY_KEYS if new_plugin
+    MANDATORY_KEYS
   end
 
-  def allow_public_plugin?(plugin_version)
-    plugin_version.plugin.public_plugin?
+  def allowed_missing_keys(new_plugin)
+    return missing_keys.any? if new_plugin
+  end
+
+  def valid_account_ids?(plugin_version, new)
+    return true unless new
+    plugin_version.manifest["whitelisted_account_ids"] && plugin_version.manifest["whitelisted_account_ids"].any?
   end
 end
