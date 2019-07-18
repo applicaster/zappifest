@@ -11,12 +11,6 @@ class Plugin < PluginBase
     @id = @existing_plugin["id"] unless @existing_plugin.nil?
   end
 
-  def public_plugin?
-    return unless existing_plugin
-    return true unless @existing_plugin["whitelisted_account_ids"]
-    @existing_plugin["whitelisted_account_ids"].blank?
-  end
-
   def create
     plugin = post_request(plugins_url, request_params).body
     @id = plugin["id"]
@@ -25,7 +19,8 @@ class Plugin < PluginBase
 
   def update
     return unless plugin_requires_update?
-    put_request(plugins_url + "/#{@id}", request_params).response
+    normalized_params = request_params.tap { |params| params.delete("plugin[whitelisted_account_ids][]") }
+    put_request(plugins_url + "/#{@id}", normalized_params).response
   end
 
   private

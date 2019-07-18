@@ -114,13 +114,13 @@ command :publish do |c|
 
     plugin_version = PluginVersion.new(options)
 
-    unless ManifestHelpers.valid_account_ids?(plugin_version)
+    unless ManifestHelpers.valid_account_ids?(plugin_version, options.new)
       color "Manifest must contain at least one whitelisted account id", :red
       exit
     end
 
     diff_keys = plugin_version.manifest.keys - ManifestHelpers.whitelisted_keys
-    missing_keys = ManifestHelpers::MANDATORY_KEYS - plugin_version.manifest.keys
+    missing_keys = ManifestHelpers.mandatory_keys(options.new) - plugin_version.manifest.keys
 
     if diff_keys.any?
       color "Manifest contains unpermitted keys: #{diff_keys.to_s}", :red
