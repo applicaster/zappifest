@@ -77,6 +77,7 @@ module ManifestHelpers
     { label: "General", value: "general", platform_required: true },
     { label: "Cell Style Family", value: "cell_style_family", platform_required: true },
     { label: "Cell Builder", value: "cell_builder", platform_required: true, screen: false },
+    { label: "Video Advertisement", value: "video_advertisement", platform_required: true, screen: false },
   ]
 
   PLATFORMS = [
