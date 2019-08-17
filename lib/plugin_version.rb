@@ -4,12 +4,12 @@ class PluginVersion < PluginBase
   attr_accessor :manifest, :plugin
 
   TARGETS_MAPPER = {
-    android: ["mobile"],
-    ios: ["mobile"],
-    tvos: ["tv"],
-    roku: ["tv"],
-    samsung_tv: ["tv"],
-    android_tv: ["tv"],
+    android: [1],
+    ios: [1],
+    tvos: [2],
+    roku: [3],
+    samsung_tv: [2],
+    android_tv: [2],
   }
 
   def initialize(options)
