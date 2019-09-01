@@ -58,6 +58,7 @@ module ManifestHelpers
     "postload",
     "supports_offline",
     "targets",
+    "localizations",
   ]
 
   Types = [
