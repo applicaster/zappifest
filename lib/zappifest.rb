@@ -89,26 +89,7 @@ command :publish do |c|
     options.default manifest: args.first
 
     VersionHelper.new(c).check_version
-
-    unless options.override_url
-      begin
-        accounts_response = NetworkHelpers.validate_accounts_token(options)
-      rescue => error
-        color "Cannot validate Token. Request failed: #{error}", :red
-        exit
-      end
-
-      case accounts_response
-      when Net::HTTPSuccess
-        color("Token valid, posting plugin...", :green)
-      when Net::HTTPUnauthorized
-        color "Invalid token", :red
-        exit
-      else
-        color "Cannot validate token, please try later.", :red
-        exit
-      end
-    end
+    NetworkHelpers.validate_token(options.access_token) unless options.override_url
 
     color "Gathering plugin information...", :green
 

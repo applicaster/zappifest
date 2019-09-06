@@ -2,14 +2,12 @@ module DefaultQuestionsHelper
   module_function
 
   def ask_base_questions(options, manifest_hash = { api: {}, dependency_repository_url: [], platform: nil })
-    manifest_hash[:author_name] = Question.ask_non_empty("Author Name:", "author")
-
-    manifest_hash[:author_email] = ask("[?] Author Email: ") do |q|
-      q.validate = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
-      q.responses[:not_valid] = "Should be a valid email."
-    end
-
     manifest_hash[:manifest_version] = Question.ask_for_version("Plugin manifest version (this key will set the plugin version in Zapp):", true, "0.1.0")
+
+    current_user = NetworkHelpers.current_user(options.access_token).body
+    manifest_hash[:author_email] = current_user["email"]
+    manifest_hash[:author_name] = current_user["name"]
+    color "*** Author name and email was set to '#{manifest_hash[:author_name]}' and '#{manifest_hash[:author_email]}' using Zapp token *** \n "
 
     manifest_hash[:name] = Question.ask_non_empty("Plugin Name (Use the same name for all platforms):", "name")
     manifest_hash[:description] = Question.ask_non_empty("Plugin description (characters limit is 80):", "description")
@@ -89,30 +87,15 @@ module DefaultQuestionsHelper
   def ask_for_whitelisted_accounts(manifest_hash, options)
     return if agree "[?] Is this a new version to exisiting plugin? (Y/n)"
 
-    begin
-      manifest_hash[:whitelisted_account_ids] = []
-      say "[?] Whitelisted Accounts"
-      color "Loading accounts, please wait a moment...", :green
-      response = NetworkHelpers.get_accounts_list(options)
-    rescue => error
-      color "Cannot load accounts. Request failed: #{error}", :red
-      exit
+    manifest_hash[:whitelisted_account_ids] = []
+    say "[?] Whitelisted Accounts"
+    color "Loading accounts, please wait a moment...", :green
+
+    parsed_response = NetworkHelpers.get_accounts_list(options).body.each_with_object({}) do |account, result|
+      result[account["name"]] = account["old_id"]
     end
 
-    case response
-    when Net::HTTPSuccess
-      parsed_response = JSON.parse(response.body).each_with_object({}) do |account, result|
-        result[account["name"]] = account["old_id"]
-      end
-
-      ask_for_whitelisted_account_ids_input(manifest_hash, parsed_response)
-    when Net::HTTPUnauthorized
-      color "Invalid token", :red
-      exit
-    else
-      color "Cannot load accounts, please try later.", :red
-      exit
-    end
+    ask_for_whitelisted_account_ids_input(manifest_hash, parsed_response)
   end
 
   def ask_for_whitelisted_account_ids_input(manifest_hash, accounts)
