@@ -45,9 +45,11 @@ module NetworkHelpers
       when Net::HTTPInternalServerError
         color "Request failed: Internal Server Error", :red
         exit
-      when Net::HTTPNotFound
+      when Net::HTTPUnauthorized
+        color "Request failed: Unauthorized, please check your ZAPP_TOKEN", :red
+        exit
       else
-        color "An Error occured : #{@response.body}", :red
+        color "Request failed: error code: #{@response.code}, error message: #{@response.message}", :red
         exit
       end
 
@@ -58,23 +60,23 @@ module NetworkHelpers
 
   module_function
 
-  def validate_accounts_token(options)
-    unless options.access_token
+  def current_user(access_token)
+    uri = URI.parse("#{ACCOUNTS_URL}/users/current.json")
+    Request.new(uri, { "access_token" => access_token }).do_request(:get)
+  end
+
+  def validate_token(access_token)
+    unless access_token
       color "Access token is missing"
       exit
     end
 
-    uri = URI.parse("#{ACCOUNTS_URL}/users/current.json")
-
-    Request
-      .new(uri, { "access_token" => options.access_token })
-      .do_request(:get)
-      .response
+    current_user(access_token)
   end
 
   def get_accounts_list(options)
     uri = URI.parse("#{ACCOUNTS_URL}/accounts.json")
-    Request.new(uri, { "access_token" => options.access_token }).do_request(:get).response
+    Request.new(uri, { "access_token" => options.access_token }).do_request(:get)
   end
 
   def get_zapp_sdks(platform, options)
