@@ -19,9 +19,11 @@ require_relative 'custom_fields_questions_helper'
 require_relative 'data_source_provider_questions_helper'
 require_relative 'navigation_plugins_questions_helper'
 require_relative 'question'
+require_relative 'version_helper'
 require_relative 'plugin_version'
 require_relative 'plugin'
-require_relative 'version_helper'
+require_relative 'account_helper'
+
 
 program :name, 'Zappifest'
 program :version, VERSION
@@ -79,6 +81,7 @@ command :publish do |c|
   c.description = 'Publish zapp plugin-manifest.json to Zapp'
   c.option '--plugin-id PLUGIN_ID', String, 'Zapp plugin id, if updating an existing plugin'
   c.option '--manifest PATH', String, 'plugin-manifest.json path'
+  c.option '--account ACCOUNT', String, 'Plugin account id'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.option '--override-url URL', String, 'alternate url'
   c.option '--new', String, 'use this option to publish a new plugin with a new identifier'
@@ -87,16 +90,28 @@ command :publish do |c|
   c.action do |args, options|
     options.default access_token: ENV["ZAPP_TOKEN"]
     options.default manifest: args.first
-
+    
     VersionHelper.new(c).check_version
     NetworkHelpers.validate_token(options.access_token) unless options.override_url
+    current_user = NetworkHelpers.current_user(options.access_token).body
+    account_helper = AccountHelper.new(current_user, options.account)
+
+    unless account_helper.valid_account?(options)
+      color "Please enter a valid account ID as --account option", :red
+      exit
+    end
+
+    unless account_helper.permitted_account_developer?
+      color "The executing user must be assigned to the plugin_developer role of the given account", :red
+      exit
+    end
 
     color "Gathering plugin information...", :green
 
     plugin_version = PluginVersion.new(options)
-
-    unless ManifestHelpers.valid_account_ids?(plugin_version, options.new)
-      color "Manifest must contain at least one whitelisted account id", :red
+    
+    if plugin_version.existing_plugin && plugin_version.existing_plugin["account_id"] != options.account
+      color "You are not authorised to update this plugin, please contact support", :red
       exit
     end
 
