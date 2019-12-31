@@ -4,7 +4,7 @@ module DefaultQuestionsHelper
   def ask_base_questions(options, manifest_hash = { api: {}, dependency_repository_url: [], platform: nil })
     manifest_hash[:manifest_version] = Question.ask_for_version("Plugin manifest version (this key will set the plugin version in Zapp):", true, "0.1.0")
 
-    current_user = NetworkHelpers.current_user(options.access_token).body
+    current_user = NetworkHelpers.current_user(options).body
     manifest_hash[:author_email] = current_user["email"]
     manifest_hash[:author_name] = current_user["name"]
     color "*** Author name and email was set to '#{manifest_hash[:author_name]}' and '#{manifest_hash[:author_email]}' using Zapp token *** \n "
