@@ -2,7 +2,7 @@ class PluginBase
   include NetworkHelpers
   include Question
 
-  attr_accessor :id, :name, :identifier, :manifest, :account_id, :existing_plugin, :request_params
+  attr_accessor :id, :name, :identifier, :manifest, :plugin_account, :existing_plugin, :request_params
 
   def initialize(options)
     @create_new_plugin = options.new
