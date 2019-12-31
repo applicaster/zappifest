@@ -92,6 +92,11 @@ command :publish do |c|
     options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
     options.default manifest: args.first
 
+    unless options.manifest
+      color "Missing required options: --manifest", :red
+      exit
+    end
+
     VersionHelper.new(c).check_version
     NetworkHelpers.validate_token(options)
 

@@ -14,6 +14,8 @@ class PluginVersion < PluginBase
 
   def initialize(options)
     super(options)
+    @access_token = options.access_token
+
     check_manifest_version_validity
 
     @targets = get_request(targets_url, { "access_token" => @access_token }).body
