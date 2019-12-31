@@ -96,7 +96,7 @@ command :publish do |c|
     options.default manifest: args.first
 
     VersionHelper.new(c).check_version
-    current_user = NetworkHelpers.validate_token(options)
+    current_user = NetworkHelpers.validate_token(options).body
     account_helper = AccountHelper.new(current_user, options.account)
 
     unless account_helper.valid_account?(options)
