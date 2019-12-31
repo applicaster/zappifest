@@ -10,8 +10,7 @@ class PluginBase
     @plugin_guide = get_markdown_data(options.plugin_guide) || @manifest["guide"]
     @plugin_about = get_markdown_data(options.plugin_about) || @manifest["about"]
     @identifier = format_identifier(@manifest["identifier"])
-    @base_url = options.override_url || NetworkHelpers::ZAPP_URL
-    @access_token = options.access_token
+    @base_url = options.base_url
   end
 
   def plugins_url

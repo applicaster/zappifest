@@ -7,6 +7,7 @@ class Plugin < PluginBase
 
   def initialize(options)
     super(options)
+    @access_token = options.access_token
     @existing_plugin = zapp_plugin unless @create_new_plugin
     @id = @existing_plugin["id"] unless @existing_plugin.nil?
   end
