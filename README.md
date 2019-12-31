@@ -55,7 +55,7 @@ By doing so, `access_token` param for publishing will not be required.
 
 Check the plugin id on [Zapp](https://zapp.applicaster.com/admin/plugins) (under the relevant plugin versions).
 
-Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json-file> --access-token <zapp-access-token>`
+Run `zappifest publish --plugin-id <plugin-id> --manifest <path-to-manifest-json-file> --access-token <zapp-access-token> --account <account-id>`
 
 #### Markdown files
 
@@ -65,9 +65,17 @@ You can use markdown files to populate the `guide` and `description` fields of t
 $ zappifest publish --manifest <path-to-manifest-json-file> --access-token <zapp-access-token> --plugin-about <path-to-about.md>
 ```
 
-### Overriding endpoint
+### Overriding endpoints
 
-You can override the remote end point using `--override-url http://localhost:{your-port}/api/v1/admin`
+When working vs local or stage server(s), it is imperative to override the url for the Zapp and accounts servers:
+
+- Zapp server override: `--base-url http://localhost:{your-port}/api/v1/admin`
+- Accounts server override: `--accounts-url http://accounts.test/api/v1`
+  Example for updating a plugin _locally_, given a zapp server up and running on `localhost:4000` and an accout server running via `pow`:
+
+```
+ruby lib/zappifest.rb publish --plugin-id 1234 --manifest <path-to-manifest-json-file> --access-token <local-zapp-access-token> --base-url http://localhost:4000/api/v1/admin --accounts-url http://accounts.test/api/v1
+```
 
 ### Contributing
 

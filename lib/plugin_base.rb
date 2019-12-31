@@ -11,7 +11,7 @@ class PluginBase
     @plugin_guide = get_markdown_data(options.plugin_guide) || @manifest["guide"]
     @plugin_about = get_markdown_data(options.plugin_about) || @manifest["about"]
     @identifier = format_identifier(@manifest["identifier"])
-    @base_url = options.override_url || NetworkHelpers::ZAPP_URL
+    @base_url = options.base_url
     @access_token = options.access_token
     @plugin_account = options.account
     @existing_plugin = zapp_plugin unless options.new
@@ -48,7 +48,7 @@ class PluginBase
     identifier.gsub(/((_|-)(ios|android))/i, "")
   end
 
-  private 
+  private
 
   def zapp_plugin
     plugin_candidates = get_request(plugins_url, request_params)
@@ -56,7 +56,7 @@ class PluginBase
       .select do |p|
         p["name"] == @name || identifier_matches?(p)
       end
-  
+
     case plugin_candidates.count
     when 0
       color "No Plugin found matching #{@manifest["identifier"]}. please check the identifier and try again", :red

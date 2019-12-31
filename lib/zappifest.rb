@@ -27,7 +27,8 @@ require_relative 'account_helper'
 
 program :name, 'Zappifest'
 program :version, VERSION
-program :description, 'Tool to generate Zapp plugin manifest'
+program :description,
+  "Tool to generate Zapp plugin manifest\n.....................................\nDetailed documentation:\nzappifest publish --help\nzappifest init --help"
 
 command :init do |c|
   c.syntax = 'zappifest init [options]'
@@ -83,17 +84,19 @@ command :publish do |c|
   c.option '--manifest PATH', String, 'plugin-manifest.json path'
   c.option '--account ACCOUNT', String, 'Plugin account id'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
-  c.option '--override-url URL', String, 'alternate url'
+  c.option '--base-url URL', String, 'alternate Zapp server url'
+  c.option '--accounts-url URL', String, 'alternate Accounts server url'
   c.option '--new', String, 'use this option to publish a new plugin with a new identifier'
   c.option '--plugin-guide PATH', String, 'markdown file for the plugin guide'
   c.option '--plugin-about PATH', String, 'markdown file for the plugin description'
   c.action do |args, options|
     options.default access_token: ENV["ZAPP_TOKEN"]
+    options.default base_url: NetworkHelpers::ZAPP_URL
+    options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
     options.default manifest: args.first
-    
+
     VersionHelper.new(c).check_version
-    NetworkHelpers.validate_token(options.access_token) unless options.override_url
-    current_user = NetworkHelpers.current_user(options.access_token).body
+    current_user = NetworkHelpers.validate_token(options)
     account_helper = AccountHelper.new(current_user, options.account)
 
     unless account_helper.valid_account?(options)
@@ -106,10 +109,15 @@ command :publish do |c|
       exit
     end
 
+    unless options.manifest
+      color "Missing required options: --manifest", :red
+      exit
+    end
+
     color "Gathering plugin information...", :green
 
     plugin_version = PluginVersion.new(options)
-    
+
     if plugin_version.existing_plugin && plugin_version.existing_plugin["account_id"] != options.account
       color "You are not authorised to update this plugin, please contact support", :red
       exit

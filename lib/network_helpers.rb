@@ -60,28 +60,28 @@ module NetworkHelpers
 
   module_function
 
-  def current_user(access_token)
-    uri = URI.parse("#{ACCOUNTS_URL}/users/current.json")
-    Request.new(uri, { "access_token" => access_token }).do_request(:get)
+  def current_user(options)
+    uri = URI.parse("#{options.accounts_url}/users/current.json")
+    Request.new(uri, { "access_token" => options.access_token }).do_request(:get)
   end
 
-  def validate_token(access_token)
-    unless access_token
+  def validate_token(options)
+    unless options.access_token
       color "Access token is missing"
       exit
     end
 
-    current_user(access_token)
+    current_user(options)
   end
 
   def get_accounts_list(options)
-    uri = URI.parse("#{ACCOUNTS_URL}/accounts.json")
+    uri = URI.parse("#{options.accounts_url}/accounts.json")
     Request.new(uri, { "access_token" => options.access_token }).do_request(:get)
   end
 
   def get_zapp_sdks(platform, options)
     uri = URI.parse(
-      "#{ZAPP_URL}/sdk_versions.json?by_platform=#{platform}&status=stable&stable_channel_by_version=true",
+      "#{options.base_url}/sdk_versions.json?by_platform=#{platform}&status=stable&stable_channel_by_version=true",
     )
 
     Request.new(uri, { "access_token" => options.access_token }).do_request(:get).response
