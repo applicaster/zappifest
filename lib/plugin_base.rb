@@ -78,7 +78,7 @@ class PluginBase
       params["plugin[name]"] = @name
       params["plugin[category]"] = @manifest["type"]
       params["plugin[external_identifier]"] = @identifier
-      params["plugin[whitelisted_account_ids][]"] = @manifest["whitelisted_account_ids"] || @plugin_account
+      params["plugin[whitelisted_account_ids][]"] = @manifest["whitelisted_account_ids"] || [@plugin_account]
       params["plugin[guide]"] = @plugin_guide
       params["plugin[description]"] = @manifest["description"]
       params["plugin[about]"] = @plugin_about
