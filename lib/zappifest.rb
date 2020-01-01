@@ -33,8 +33,12 @@ command :init do |c|
   c.summary = 'Initialize plugin-manifest.json'
   c.description = 'Initialize plugin-manifest.json'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
+  c.option '--base-url URL', String, 'alternate Zapp server url'
+  c.option '--accounts-url URL', String, 'alternate Accounts server url'
   c.action do |args, options|
     options.default access_token: ENV["ZAPP_TOKEN"]
+    options.default base_url: NetworkHelpers::ZAPP_URL
+    options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
 
     VersionHelper.new(options).check_version
 
