@@ -19,7 +19,7 @@ class Plugin < PluginBase
 
   def update
     return unless plugin_requires_update?
-    keys_to_remove = ["plugin[account_id]", "plugin[whitelisted_account_ids][]"]
+    keys_to_remove = ["plugin[owner_account_id]", "plugin[whitelisted_account_ids][]"]
     normalized_params = request_params.delete_if { |key, _| keys_to_remove.include? key }
 
     put_request(plugins_url + "/#{@id}", normalized_params).response
@@ -47,7 +47,7 @@ class Plugin < PluginBase
       core_plugin
       screen
       exports
-      account_id
+      owner_account_id
     )
   end
 
@@ -65,7 +65,7 @@ class Plugin < PluginBase
       plugin[core_plugin]
       plugin[screen]
       plugin[exports]
-      plugin[account_id]
+      plugin[owner_account_id]
     )
   end
 

@@ -92,7 +92,7 @@ class PluginBase
       params["plugin[preview_image]"] = preview_image
       params["plugin[preload]"] = @manifest["preload"] || false
       params["plugin[postload]"] = @manifest["postload"] || false
-      params["plugin[account_id]"] = @plugin_account
+      params["plugin[owner_account_id]"] = @plugin_account
     end
   end
 

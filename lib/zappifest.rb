@@ -118,7 +118,7 @@ command :publish do |c|
 
     plugin_version = PluginVersion.new(options)
 
-    if plugin_version.existing_plugin && plugin_version.existing_plugin["account_id"] != options.account
+    if plugin_version.existing_plugin && plugin_version.existing_plugin["owner_account_id"] != options.account
       color "You are not authorised to update this plugin, please contact support", :red
       exit
     end
