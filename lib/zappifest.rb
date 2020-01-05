@@ -76,6 +76,39 @@ command :init do |c|
   end
 end
 
+command :get_account_plugins do |c|
+  c.syntax = 'zappifest get_account_plugins [options]'
+  c.summary = 'Get account plugins'
+  c.description = 'Get all plugins of certan account'
+  c.option '--account ACCOUNT', String, 'Plugin account id'
+  c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
+  c.option '--base-url URL', String, 'alternate Zapp server url'
+  c.option '--accounts-url URL', String, 'alternate Accounts server url'
+  c.action do |args, options|
+    options.default access_token: ENV["ZAPP_TOKEN"]
+    options.default base_url: NetworkHelpers::ZAPP_URL
+    options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
+    current_user = NetworkHelpers.validate_token(options).body
+    account_helper = AccountHelper.new(current_user, options.account)
+
+    unless account_helper.valid_account?(options)
+      color "Please enter a valid account ID as --account option", :red
+      exit
+    end
+
+    unless account_helper.permitted_account_developer?
+      color "You are not permitted to see this account’s plugins, please contact support", :red
+      exit
+    end
+
+    color "List of #{account_helper.account_name} account plugins", :green
+
+    account_helper.account_plugins(options).each_with_index do |plugin, index|
+      color "#{index + 1} #{plugin}"
+    end
+  end
+end
+
 command :publish do |c|
   c.syntax = 'zappifest publish [options]'
   c.summary = 'Publish plugin to Zapp'
