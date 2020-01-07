@@ -14,7 +14,7 @@ class AccountHelper
 
       existing_account = accounts_list.find { |account| account["old_id"] == @account }
 
-      return false unless @account_name.present?
+      return false unless existing_account.present?
 
       @account_name = existing_account["name"]
       existing_account.present?
