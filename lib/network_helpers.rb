@@ -49,7 +49,10 @@ module NetworkHelpers
         color "Request failed: Unauthorized, please check your ZAPP_TOKEN", :red
         exit
       else
-        color "Request failed: error code: #{@response.code}, error message: #{@response.message}", :red
+        color "Request failed", :red
+        color "Error code: #{@response.code}", :red
+        color "Error message: #{@response.message}", :red
+        color "Error body: #{@response.body}", :red
         exit
       end
 
