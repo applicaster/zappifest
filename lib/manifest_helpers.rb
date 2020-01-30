@@ -59,6 +59,7 @@ module ManifestHelpers
     "supports_offline",
     "targets",
     "localizations",
+    "ui_frameworks",
   ]
 
   Types = [
