@@ -25,15 +25,20 @@ require_relative 'version_helper'
 
 program :name, 'Zappifest'
 program :version, VERSION
-program :description, 'Tool to generate Zapp plugin manifest'
+program :description,
+  "Tool to generate Zapp plugin manifest\n.....................................\nDetailed documentation:\nzappifest publish --help\nzappifest init --help"
 
 command :init do |c|
   c.syntax = 'zappifest init [options]'
   c.summary = 'Initialize plugin-manifest.json'
   c.description = 'Initialize plugin-manifest.json'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
+  c.option '--base-url URL', String, 'alternate Zapp server url'
+  c.option '--accounts-url URL', String, 'alternate Accounts server url'
   c.action do |args, options|
     options.default access_token: ENV["ZAPP_TOKEN"]
+    options.default base_url: NetworkHelpers::ZAPP_URL
+    options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
 
     VersionHelper.new(options).check_version
 
@@ -80,16 +85,24 @@ command :publish do |c|
   c.option '--plugin-id PLUGIN_ID', String, 'Zapp plugin id, if updating an existing plugin'
   c.option '--manifest PATH', String, 'plugin-manifest.json path'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
-  c.option '--override-url URL', String, 'alternate url'
+  c.option '--base-url URL', String, 'alternate Zapp server url'
+  c.option '--accounts-url URL', String, 'alternate Accounts server url'
   c.option '--new', String, 'use this option to publish a new plugin with a new identifier'
   c.option '--plugin-guide PATH', String, 'markdown file for the plugin guide'
   c.option '--plugin-about PATH', String, 'markdown file for the plugin description'
   c.action do |args, options|
     options.default access_token: ENV["ZAPP_TOKEN"]
+    options.default base_url: NetworkHelpers::ZAPP_URL
+    options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
     options.default manifest: args.first
 
+    unless options.manifest
+      color "Missing required options: --manifest", :red
+      exit
+    end
+
     VersionHelper.new(c).check_version
-    NetworkHelpers.validate_token(options.access_token) unless options.override_url
+    NetworkHelpers.validate_token(options)
 
     color "Gathering plugin information...", :green
 
