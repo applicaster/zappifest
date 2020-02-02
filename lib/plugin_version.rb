@@ -1,3 +1,4 @@
+require 'set'
 require_relative 'plugin_base'
 
 class PluginVersion < PluginBase
@@ -20,6 +21,9 @@ class PluginVersion < PluginBase
 
     @targets = get_request(targets_url, { "access_token" => @access_token }).body
     set_valid_target
+
+    @ui_frameworks = get_request(ui_frameworks_url, { "access_token" => @access_token }).body
+    set_valid_ui_frameworks
 
     @id = options.plugin_id || nil
     @plugin = Plugin.new(options)
@@ -102,6 +106,32 @@ class PluginVersion < PluginBase
     end
   end
 
+  # map each ui_framework name to id, return an array of integers (ids)
+  def ui_frameworks
+    return nil if ui_frameworks_empty?
+
+    @manifest["ui_frameworks"].map {|f| @ui_frameworks.find{|c| c["name"] == f}["id"]}
+  end
+
+  def default_ui_framework
+    @ui_frameworks.find { |f| f["name"] == "native" }
+  end
+
+  # Parse ui_frameworks names (string) from manifest, and convert to ids from Zapp
+  # - If field was not provided in manifest - return nil
+  # - If name was not found in the list from Zapp's API - throw error
+  def set_valid_ui_frameworks
+    return if ui_frameworks_empty?
+
+    ui_frameworks_names = @ui_frameworks.map {|t| t["name"] }
+
+    if !@manifest["ui_frameworks"].to_set.subset? ui_frameworks_names.to_set
+      color "Please enter a valid array of UI Frameworks.", :red
+      color "Available UI Frameworks: #{ui_frameworks_names}", :red
+      exit
+    end
+  end
+
   def request_params
     {}.tap do |params|
       params["id"] = @id unless @id.nil?
@@ -114,11 +144,16 @@ class PluginVersion < PluginBase
       params["plugin_version[scheme]"] = @manifest["scheme"]
       params["plugin_version[latest_version]"] = @manifest["latest_version"] || true
       params["plugin_version[targets]"] = targets.to_json
+      params["plugin_version[ui_frameworks]"] = ui_frameworks.to_json
     end
   end
 
   def platform
     return if @manifest["platform"].nil? || @manifest["platform"].empty?
     @manifest["platform"]
+  end
+
+  def ui_frameworks_empty?
+    @manifest["ui_frameworks"].nil? || @manifest["ui_frameworks"].empty?
   end
 end
