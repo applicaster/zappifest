@@ -108,6 +108,8 @@ class PluginVersion < PluginBase
 
   # map each ui_framework name to id, return an array of integers (ids)
   def ui_frameworks
+    return nil if ui_frameworks_empty?
+
     @manifest["ui_frameworks"].map {|f| @ui_frameworks.find{|c| c["name"] == f}["id"]}
   end
 
@@ -115,13 +117,11 @@ class PluginVersion < PluginBase
     @ui_frameworks.find { |f| f["name"] == "native" }
   end
 
-  # Parse ui_frameworks from manifest, and convert to ids from Zapp
-  # If field was not provided in manifest - set a default ui_framework
+  # Parse ui_frameworks names (string) from manifest, and convert to ids from Zapp
+  # - If field was not provided in manifest - return nil
+  # - If name was not found in the list from Zapp's API - throw error
   def set_valid_ui_frameworks
-    if @manifest["ui_frameworks"].nil? || @manifest["ui_frameworks"].empty?
-      @manifest["ui_frameworks"] = [default_ui_framework["name"]] # array with a single integer value
-      return
-    end
+    return if ui_frameworks_empty?
 
     ui_frameworks_names = @ui_frameworks.map {|t| t["name"] }
 
@@ -151,5 +151,9 @@ class PluginVersion < PluginBase
   def platform
     return if @manifest["platform"].nil? || @manifest["platform"].empty?
     @manifest["platform"]
+  end
+
+  def ui_frameworks_empty?
+    @manifest["ui_frameworks"].nil? || @manifest["ui_frameworks"].empty?
   end
 end
