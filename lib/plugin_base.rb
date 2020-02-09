@@ -34,6 +34,10 @@ class PluginBase
     "#{@base_url}/targets"
   end
 
+  def ui_frameworks_url
+    "#{@base_url}/ui_frameworks"
+  end
+
   def get_manifest_data(options)
     manifest_file = File.open(options.manifest)
     JSON.parse(File.read(manifest_file))

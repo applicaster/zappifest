@@ -1,5 +1,5 @@
 class VersionHelper
-  require 'Versionomy'
+  require 'versionomy'
 
   def initialize(command)
     @command = command
