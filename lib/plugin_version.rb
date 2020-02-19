@@ -68,13 +68,13 @@ class PluginVersion < PluginBase
 
   def create
     @create_new_plugin ? @plugin.create : @plugin.update
-    post_request(plugin_versions_url, request_params).response
+    post_request(plugin_versions_url, version_request_params).response
   end
 
   def update
     if @plugin.id
       @plugin.update
-      put_request(plugin_versions_url + "/#{@id}", request_params).response
+      put_request(plugin_versions_url + "/#{@id}", version_request_params).response
     else
       color "Plugin #{@manifest["name"]} not found, cannot proceed with update", :red
       exit
@@ -132,7 +132,7 @@ class PluginVersion < PluginBase
     end
   end
 
-  def request_params
+  def version_request_params
     {}.tap do |params|
       params["id"] = @id unless @id.nil?
       params["access_token"] = @access_token
