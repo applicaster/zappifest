@@ -48,6 +48,7 @@ This isn't needed when you are publishing a new version or updating an existing 
 
 Every plugin belong to account.
 A user can’t update a plugin if the user is not a plugin_developer of the plugin’s account.
+You can find your account id by visiting https://accounts.applicaster.com
 
 ```
 Note: It is recommended to set the access-token as environment variable `ZAPP_TOKEN`.
