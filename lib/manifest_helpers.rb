@@ -30,6 +30,7 @@ module ManifestHelpers
     "npm_dependencies",
     "scheme",
     "data_types",
+    "zapp_pipes",
     "react_bundle_url",
     "thumbnail",
     "screenshots",
