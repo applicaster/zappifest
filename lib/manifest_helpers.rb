@@ -61,6 +61,7 @@ module ManifestHelpers
     "targets",
     "localizations",
     "ui_frameworks",
+    "allowed_nested_components",
   ]
 
   Types = [
