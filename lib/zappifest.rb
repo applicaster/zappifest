@@ -28,7 +28,11 @@ require_relative 'account_helper'
 program :name, 'Zappifest'
 program :version, VERSION
 program :description,
-  "Tool to generate Zapp plugin manifest\n.....................................\nDetailed documentation:\nzappifest publish --help\nzappifest init --help"
+  "Tool to generate Zapp plugin manifest\n.....................................\nDetailed documentation:\n" +
+  "zappifest publish --help\n" +
+  "zappifest init --help\n" +
+  "zappifest get_account_plugins --help\n" +
+  "zappifest show_accounts --help\n"
 
 command :init do |c|
   c.syntax = 'zappifest init [options]'
@@ -83,7 +87,7 @@ end
 command :get_account_plugins do |c|
   c.syntax = 'zappifest get_account_plugins [options]'
   c.summary = 'Get account plugins'
-  c.description = 'Get all plugins of certan account'
+  c.description = 'Get all plugins of certain account'
   c.option '--account ACCOUNT', String, 'Plugin account id'
   c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
   c.option '--base-url URL', String, 'alternate Zapp server url'
@@ -110,6 +114,31 @@ command :get_account_plugins do |c|
     account_helper.account_plugins(options).each_with_index do |plugin, index|
       color "#{index + 1} #{plugin}"
     end
+  end
+end
+
+command :show_accounts do |c|
+  c.syntax = 'zappifest show_accounts [options]'
+  c.summary = 'Show accounts list'
+  c.description = 'Get list of permitted accounts'
+  c.option '--access-token ACCESS_TOKEN', String, 'Zapp access-token'
+  c.option '--accounts-url URL', String, 'alternate Accounts server url'
+  c.action do |args, options|
+    options.default access_token: ENV["ZAPP_TOKEN"]
+    options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
+    current_user = NetworkHelpers.validate_token(options).body
+
+    color "Listing accounts and ids (please wait a moment)", :green
+
+    table = Terminal::Table.new do |t|
+      t << ["Name", "ID"]
+      t << :separator
+      parsed_response = NetworkHelpers.get_accounts_list(options).body.each do |account|
+        t.add_row [account['name'], account['old_id']]
+      end
+    end
+
+    puts table
   end
 end
 
@@ -156,7 +185,7 @@ command :publish do |c|
     plugin_version = PluginVersion.new(options)
 
     if plugin_version.existing_plugin && plugin_version.existing_plugin["owner_account_id"] != options.account
-      color "You are not authorised to update this plugin, please contact support", :red
+      color "You are not authorized to update this plugin, please contact support", :red
       exit
     end
 
