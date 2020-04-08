@@ -66,6 +66,12 @@ In order to know on which plugins you can touch when you execute zappifest then 
 
 Run `zappifest get_account_plugins --access-token <zapp-access-token> --account <account-id>`
 
+#### List user's permitted accounts
+
+In order to get the list of User's permitted accounts names and ids run the following command:
+
+Run `zappifest show_accounts --access-token <zapp-access-token>`
+
 #### Markdown files
 
 You can use markdown files to populate the `guide` and `description` fields of the manifest. To do so, create markdown files for these fields, and add the path to these files in the command :
