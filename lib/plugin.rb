@@ -19,7 +19,17 @@ class Plugin < PluginBase
 
   def update
     return unless plugin_requires_update?
-    keys_to_remove = ["plugin[owner_account_id]", "plugin[whitelisted_account_ids][]"]
+    keys_to_remove = [
+      "plugin[owner_account_id]",
+      "plugin[whitelisted_account_ids][]",
+      "plugin[name]",
+      "plugin[category]",
+      "plugin[description]",
+      "plugin[cover_image]",
+      "plugin[about]",
+      "plugin[preview_image]",
+    ]
+
     normalized_params = request_params.delete_if { |key, _| keys_to_remove.include? key }
 
     put_request(plugins_url + "/#{@id}", normalized_params).response
@@ -35,11 +45,7 @@ class Plugin < PluginBase
 
   def existing_plugin_attributes
     %w(
-      name
-      category
       whitelisted_account_ids
-      about
-      preview_image
       ui_builder_support
       cover_image
       configuration_panel_disabled
@@ -53,15 +59,9 @@ class Plugin < PluginBase
 
   def new_plugin_attributes
     %w(
-      plugin[name]
-      plugin[category]
       plugin[whitelisted_account_ids][]
-      plugin[about]
-      plugin[preview_image]
       plugin[ui_builder_support]
-      plugin[cover_image]
       plugin[configuration_panel_disabled]
-      plugin[description]
       plugin[core_plugin]
       plugin[screen]
       plugin[exports]
