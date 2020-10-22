@@ -7,14 +7,15 @@ module NetworkHelpers
   class Request
     attr_accessor :response, :body
 
-    def initialize(uri, params)
+    def initialize(uri, params, options = {})
       @uri = uri
       @params = params
+      @options = options
     end
 
     def do_request(method)
       Net::HTTP.start(@uri.host, @uri.port, use_ssl: use_ssl?) do |connection|
-        connection.read_timeout = 20
+        connection.read_timeout = 60
         @method = method
         @response = connection.send(method, request_url, *request_params)
         handle_response
@@ -44,16 +45,16 @@ module NetworkHelpers
         @body = JSON.parse(response.body)
       when Net::HTTPInternalServerError
         color "Request failed: Internal Server Error", :red
-        exit
+        exit if @options[:fail_fast]
       when Net::HTTPUnauthorized
         color "Request failed: Unauthorized, please check your ZAPP_TOKEN", :red
-        exit
+        exit if @options[:fail_fast]
       else
         color "Request failed", :red
         color "Error code: #{@response.code}", :red
         color "Error message: #{@response.message}", :red
         color "Error body: #{@response.body}", :red
-        exit
+        exit if @options[:fail_fast]
       end
 
     rescue JSON::ParserError => error
@@ -90,18 +91,15 @@ module NetworkHelpers
     Request.new(uri, { "access_token" => options.access_token }).do_request(:get).response
   end
 
-  def respond_to_missing?(method_name, include_private = false)
-    %w(get_request put_request post_request).include?(method_name)
+  def get_request(url, params, options = {})
+    Request.new(URI.parse(url), params, options).do_request(:get)
   end
 
-  def method_missing(method_name, *args, &block)
-    if [:get_request, :put_request, :post_request].include?(method_name)
-      url, params = args
-      uri = URI.parse(url)
-      request_method = method_name.to_s.gsub(/_request/, '').to_sym
-      Request.new(uri, params).do_request(request_method)
-    else
-      super
-    end
+  def post_request(url, params, options = {})
+    Request.new(URI.parse(url), params, options).do_request(:post)
+  end
+
+  def put_request(url, params, options = {})
+    Request.new(URI.parse(url), params, options).do_request(:put)
   end
 end

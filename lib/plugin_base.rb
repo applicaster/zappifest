@@ -55,24 +55,13 @@ class PluginBase
   private
 
   def zapp_plugin
-    plugin_candidates = get_request(plugins_url, request_params)
-      .body
-      .select do |p|
-        p["name"] == @name || identifier_matches?(p)
-      end
+    candidate = get_request("#{@base_url}/plugins/#{identifier}", request_params).body
 
-    case plugin_candidates.count
-    when 0
-      color "No Plugin found matching #{@manifest["identifier"]}. please check the identifier and try again", :red
-      color "If you want to create a plugin with a new identifier, use the --new option (see zappifest publish --help)", :red
-      exit
-    when 1
-      plugin_candidates.first
-    else
-      plugin_identifiers = plugin_candidates.map { |p| p["external_identifier"] }
-      identifier_index = multiple_option_question("Please select your plugin", plugin_identifiers)
-      plugin_candidates[identifier_index]
-    end
+    return candidate if candidate && candidate["id"]
+
+    color "No Plugin found matching #{@manifest["identifier"]}. please check the identifier and try again", :red
+    color "If you want to create a plugin with a new identifier, use the --new option (see zappifest publish --help)", :red
+    exit
   end
 
   def request_params

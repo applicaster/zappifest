@@ -12,7 +12,7 @@ class Plugin < PluginBase
   end
 
   def create
-    plugin = post_request(plugins_url, request_params).body
+    plugin = post_request(plugins_url, request_params, { fail_fast: true }).body
     @id = plugin["id"]
     self
   end
@@ -22,7 +22,7 @@ class Plugin < PluginBase
     keys_to_remove = ["plugin[owner_account_id]", "plugin[whitelisted_account_ids][]"]
     normalized_params = request_params.delete_if { |key, _| keys_to_remove.include? key }
 
-    put_request(plugins_url + "/#{@id}", normalized_params).response
+    put_request(plugins_url + "/#{@id}", normalized_params, { fail_fast: true }).response
   end
 
   private
