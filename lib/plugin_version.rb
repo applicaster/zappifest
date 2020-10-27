@@ -19,10 +19,10 @@ class PluginVersion < PluginBase
 
     check_manifest_version_validity
 
-    @targets = get_request(targets_url, { "access_token" => @access_token }).body
+    @targets = get_request(targets_url, { "access_token" => @access_token }, { fail_fast: true }).body
     set_valid_target
 
-    @ui_frameworks = get_request(ui_frameworks_url, { "access_token" => @access_token }).body
+    @ui_frameworks = get_request(ui_frameworks_url, { "access_token" => @access_token }, { fail_fast: true }).body
     set_valid_ui_frameworks
 
     @id = options.plugin_id || nil
@@ -68,13 +68,13 @@ class PluginVersion < PluginBase
 
   def create
     @create_new_plugin ? @plugin.create : @plugin.update
-    post_request(plugin_versions_url, version_request_params).response
+    post_request(plugin_versions_url, version_request_params, { fail_fast: true }).response
   end
 
   def update
     if @plugin.id
       @plugin.update
-      put_request(plugin_versions_url + "/#{@id}", version_request_params).response
+      put_request(plugin_versions_url + "/#{@id}", version_request_params, { fail_fast: true }).response
     else
       color "Plugin #{@manifest["name"]} not found, cannot proceed with update", :red
       exit
