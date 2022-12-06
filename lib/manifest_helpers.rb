@@ -62,6 +62,7 @@ module ManifestHelpers
     localizations
     ui_frameworks
     characteristics
+    min_quick_brick_sdk
   ].freeze
 
   Types = [
