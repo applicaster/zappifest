@@ -51,6 +51,7 @@ DEPENDENCIES
   diffy
   inquirer
   mime-types
+  parallel
   pry
   rubocop (~> 0.49.0)
   terminal-table

@@ -143,8 +143,8 @@ command :show_accounts do |c|
 end
 
 command :publish do |c|
-  c.syntax = 'zappifest publish [options]'
-  c.summary = 'Publish plugin to Zapp'
+  c.syntax = 'zappifest publish [manifest_paths] [options]'
+  c.summary = 'Publish plugin(s) to Zapp'
   c.description = 'Publish zapp plugin-manifest.json to Zapp'
   c.option '--plugin-id PLUGIN_ID', String, 'Zapp plugin id, if updating an existing plugin'
   c.option '--manifest PATH', String, 'plugin-manifest.json path'
@@ -155,69 +155,109 @@ command :publish do |c|
   c.option '--new', String, 'use this option to publish a new plugin with a new identifier'
   c.option '--plugin-guide PATH', String, 'markdown file for the plugin guide'
   c.option '--plugin-about PATH', String, 'markdown file for the plugin description'
-  c.action do |args, options|
-    options.default access_token: ENV["ZAPP_TOKEN"]
-    options.default base_url: NetworkHelpers::ZAPP_URL
-    options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
-    options.default manifest: args.first
+  c.option '--parallel NUM', Integer, 'Number of parallel threads (optional)'
+  c.option '--no-diff', 'Do not show diff before publishing'
+   c.action do |args, options|
+     # Defaults
+     options.default access_token: ENV["ZAPP_TOKEN"]
+     options.default base_url: NetworkHelpers::ZAPP_URL
+     options.default accounts_url: NetworkHelpers::ACCOUNTS_URL
+     options.default no_diff: false
+     # Note: Do not default :parallel to preserve sequential behavior when not provided
+     options.default manifest: args.first
+
+    # Support both --manifest and positional globbing arguments
+    manifest_paths = ([options.manifest] + args).compact.uniq
+
+    if manifest_paths.empty?
+      color "Missing required manifest path(s).", :red
+      exit
+    end
 
     VersionHelper.new(c).check_version
+
+    # GLOBAL STARTUP: validate token & account once
     current_user = NetworkHelpers.validate_token(options).body
     account_helper = AccountHelper.new(current_user, options.account)
 
-    unless account_helper.valid_account?(options)
-      color "Please enter a valid account ID as --account option", :red
+    unless account_helper.valid_account?(options) && account_helper.permitted_account_developer?
+      color "Account validation failed or insufficient permissions", :red
       exit
     end
 
-    unless account_helper.permitted_account_developer?
-      color "The executing user must be assigned to the plugin_developer role of the given account", :red
-      exit
-    end
-
-    unless options.manifest
-      color "Missing required options: --manifest", :red
-      exit
-    end
-
-    color "Gathering plugin information...", :green
-
-    plugin_version = PluginVersion.new(options)
-
-    if plugin_version.existing_plugin && plugin_version.existing_plugin["owner_account_id"] != options.account
-      color "You are not authorized to update this plugin, please contact support", :red
-      exit
-    end
-
-    diff_keys = plugin_version.manifest.keys - ManifestHelpers.whitelisted_keys
-    missing_keys = ManifestHelpers.mandatory_keys(options.new) - plugin_version.manifest.keys
-
-    if diff_keys.any?
-      color "Manifest contains unpermitted keys: #{diff_keys.to_s}", :red
-      exit
-    end
-
-    if missing_keys.any?
-      color "Manifest missing mandatory keys: #{missing_keys.to_s}", :red
-      exit
-    end
-
+    # Fetch global metadata ONCE to avoid redundant calls per manifest
+    color "Fetching global Zapp metadata...", :green
+    cached_data = {}
     begin
-      color "Publishing your plugin, this will only take a few moments...", :green
-      plugin_version.show_diff if plugin_version.id
-      response = plugin_version.publish
-
-    rescue => error
-      color "Failed with the following error: #{error.message}", :red
+      cached_data[:targets] = NetworkHelpers.get_request("#{options.base_url}/targets", { "access_token" => options.access_token }, { fail_fast: true }).body
+      cached_data[:ui_frameworks] = NetworkHelpers.get_request("#{options.base_url}/ui_frameworks", { "access_token" => options.access_token }, { fail_fast: true }).body
+    rescue => e
+      color "Failed to fetch global metadata: #{e.message}", :red
+      exit
     end
 
-    case response
-    when Net::HTTPSuccess
-      color(options.plugin_id ? "Plugin updated!" : "Plugin created! ", :green)
-    when Net::HTTPInternalServerError
-      color "Request failed: HTTPInternalServerError", :red
+    # Decide between parallel or sequential execution
+    if options.respond_to?(:parallel) && options.parallel && options.parallel.to_i > 1
+      require 'parallel'
+      color "Starting parallel publish (#{options.parallel} threads) for #{manifest_paths.size} plugins...", :green
+      Parallel.each(manifest_paths, in_threads: options.parallel.to_i) do |path|
+        process_single_manifest(path, options, cached_data)
+      end
     else
-      color "Error: #{response.body}", :red
+      color "Starting sequential publish for #{manifest_paths.size} plugins...", :green
+      manifest_paths.each do |path|
+        process_single_manifest(path, options, cached_data)
+      end
     end
-  end
-end
+   end
+ end
+
+ # Helper to maintain clean logging and error handling per plugin
+ def process_single_manifest(path, options, cached_data)
+   begin
+     local_options = options.dup
+     local_options.manifest = path
+     # Inject cached data into options for PluginVersion to use
+     local_options.instance_variable_set(:@cached_metadata, cached_data)
+
+     color "[#{path}] Gathering plugin information...", :blue
+     plugin_version = PluginVersion.new(local_options)
+
+     # Authorization check for existing plugin - keep per-manifest
+     if plugin_version.existing_plugin && plugin_version.existing_plugin["owner_account_id"] != local_options.account
+       color "[#{path}] You are not authorized to update this plugin, please contact support", :red
+       return
+     end
+
+     # Basic validation
+     diff_keys = plugin_version.manifest.keys - ManifestHelpers.whitelisted_keys
+     missing_keys = ManifestHelpers.mandatory_keys(local_options.new) - plugin_version.manifest.keys
+
+     if diff_keys.any?
+       color "[#{path}] Validation failed: Manifest contains unpermitted keys: #{diff_keys.to_s}", :red
+       return
+     end
+
+     if missing_keys.any?
+       color "[#{path}] Validation failed: Manifest missing mandatory keys: #{missing_keys.to_s}", :red
+       return
+     end
+
+    # Show diff unless explicitly disabled
+    plugin_version.show_diff if plugin_version.id && !local_options.no_diff
+
+     color "[#{path}] Publishing...", :green
+     response = plugin_version.publish
+
+     if response.is_a?(Net::HTTPSuccess)
+       color "[#{path}] Plugin successfully published!", :green
+     else
+       code = response.respond_to?(:code) ? response.code : 'N/A'
+       body = response.respond_to?(:body) ? response.body : response.to_s
+       color "[#{path}] Failed: #{code} - #{body}", :red
+     end
+
+   rescue => e
+     color "[#{path}] Critical Error: #{e.message}", :red
+   end
+ end
