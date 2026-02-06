@@ -19,11 +19,22 @@ class PluginVersion < PluginBase
 
     check_manifest_version_validity
 
-    @targets = get_request(targets_url, { "access_token" => @access_token }, { fail_fast: true }).body
-    set_valid_target
+    # Use cached data if present to avoid repeated network calls (backward compatible)
+    cached = options.instance_variable_get(:@cached_metadata) rescue nil
 
-    @ui_frameworks = get_request(ui_frameworks_url, { "access_token" => @access_token }, { fail_fast: true }).body
-    set_valid_ui_frameworks
+    if cached && cached[:targets] && cached[:ui_frameworks]
+      @targets = cached[:targets]
+      set_valid_target
+
+      @ui_frameworks = cached[:ui_frameworks]
+      set_valid_ui_frameworks
+    else
+      @targets = get_request(targets_url, { "access_token" => @access_token }, { fail_fast: true }).body
+      set_valid_target
+
+      @ui_frameworks = get_request(ui_frameworks_url, { "access_token" => @access_token }, { fail_fast: true }).body
+      set_valid_ui_frameworks
+    end
 
     @id = options.plugin_id || nil
     @plugin = Plugin.new(options)
